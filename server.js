@@ -100,7 +100,7 @@ app.post('/registerGameUser', (req, res) => {
     const { studentID, email, section, professorname } = req.body;
 
     // Manually insert studentID
-    const query = `INSERT INTO GameUsers (StudentID, Email, Section, ProfessorName, Level1Score, Level2Score, Level3Score, Level4Score) 
+    const query = `INSERT INTO gameusers (StudentID, Email, Section, ProfessorName, Level1Score, Level2Score, Level3Score, Level4Score) 
                    VALUES (?, ?, ?, ?, 0, 0, 0, 0)`;
 
     db.query(query, [studentID, email, section, professorname], (err, result) => {
@@ -114,7 +114,7 @@ app.post('/registerGameUser', (req, res) => {
 
 app.get('/get_user_progress/:email', (req, res) => {
     const email = req.params.email;
-    const query = `SELECT level1score, level2score, level3score FROM gameusers WHERE email = ?`;
+    const query = `SELECT Level1Score, Level2Score, Level3Score FROM gameusers WHERE Email = ?`;
 
     db.query(query, [email], (err, results) => {
         if (err) {
@@ -136,9 +136,9 @@ app.post('/update_score', (req, res) => {
     console.log(req.body)
     // Check the string value of 'level'
     if (level === "level1score") {
-        query = `UPDATE gameusers SET level1score = ? WHERE email = ? AND (level1score < ? OR level1score IS NULL)`;
+        query = `UPDATE gameusers SET Level1Score = ? WHERE email = ? AND (Level1Score < ? OR Level1Score IS NULL)`;
     } else if (level === "level2score") {
-        query = `UPDATE gameusers SET level2score = ? WHERE email = ? AND (level2score < ? OR level2score IS NULL)`;
+        query = `UPDATE gameusers SET Level2Score = ? WHERE email = ? AND (Level2Score < ? OR Level2Score IS NULL)`;
     } else {
         return res.status(400).json({ message: 'Invalid level' });
     }
