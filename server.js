@@ -6,7 +6,12 @@ const bcrypt = require('bcrypt');
 const app = express();
 const crypto = require('crypto');
 const cors = require('cors');
-app.use(cors());
+app.use(cors({
+    origin:'*',
+    methods:['GET','POST','OPTIONS'],
+    allowedHeaders:['Content-Type'],
+    
+}));
 require('dotenv').config();
 
 app.use(bodyParser.json());
