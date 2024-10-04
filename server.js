@@ -117,7 +117,10 @@ app.get('/get_user_progress/:email', (req, res) => {
     const query = `SELECT level1score, level2score, level3score FROM gameusers WHERE email = ?`;
 
     db.query(query, [email], (err, results) => {
-        if (err) return res.status(500).json({ error: 'Error fetching progress' });
+        if (err) {
+            console.error('Database error:', err); // Log the error
+            return res.status(500).json({ error: 'Error fetching progress' });
+        }
 
         if (results.length > 0) {
             res.status(200).json(results[0]);  // Ensure you return JSON
