@@ -46,8 +46,10 @@ app.post('/register', (req, res) => {
 // Login endpoint (no authentication needed)
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
+    console.log("user logging in: ", username);
     const query = 'SELECT * FROM users WHERE username = ?';
     db.query(query, [username], (err, results) => {
+        console.error(err)
         if (err) return res.status(500).send('Error on the server');
         if (!results.length) return res.status(404).send('No user found');
         
