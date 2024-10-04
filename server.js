@@ -6,11 +6,7 @@ const bcrypt = require('bcrypt');
 const app = express();
 const crypto = require('crypto');
 const cors = require('cors');
-app.use(cors({
-    origin:'*',
-    methods:['GET','POST','OPTIONS'],
-    allowedHeaders:['Content-Type']
-}));
+app.use(cors());
 require('dotenv').config();
 
 app.use(bodyParser.json());
@@ -46,11 +42,12 @@ app.post('/register', (req, res) => {
 // Login endpoint (no authentication needed)
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    console.log("user logging in: ", username);
     const query = 'SELECT * FROM users WHERE username = ?';
+    console.log(`Username login ${username}`);
     db.query(query, [username], (err, results) => {
-        console.error(err)
-        if (err) return res.status(500).send('Error on the server');
+        if (err) {
+            console.log(err)
+            return res.status(500).send('Error on the server');}
         if (!results.length) return res.status(404).send('No user found');
         
         const user = results[0];
