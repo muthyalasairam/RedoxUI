@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Redox Questions</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-5">Manage Questions</h2>
+        <form id="questionForm">
+            <div class="form-group">
+                <label for="level">Select Level:</label>
+                <select class="form-control" id="level">
+                    <option value="1">Level 1</option>
+                    <option value="2">Level 2</option>
+                    <option value="3">Level 3</option>
+                    <option value="4">Level 4</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="question_text">Question:</label>
+                <input type="text" class="form-control" id="question_text" required>
+            </div>
+            <div class="form-group">
+                <label for="option1">Option 1 (Correct Answer):</label>
+                <input type="text" class="form-control" id="option1" placeholder="Correct Answer" required>
+            </div>
+            <div class="form-group">
+                <label for="option2">Option 2 (Incorrect Answer):</label>
+                <input type="text" class="form-control" id="option2" placeholder="Incorrect Answer" required>
+            </div>
+            <div class="form-group">
+                <label for="option3">Option 3 (Incorrect Answer):</label>
+                <input type="text" class="form-control" id="option3" placeholder="Incorrect Answer" required>
+            </div>
+            <div class="form-group">
+                <label for="option4">Option 4 (Incorrect Answer):</label>
+                <input type="text" class="form-control" id="option4" placeholder="Incorrect Answer" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Question</button>
+        </form>
+        <button id="viewQuestionsButton" class="btn btn-secondary mt-3">View Questions</button>
+        <div id="questionsList" class="mt-5"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            console.log('DOM fully loaded and parsed');
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.log('No token found, redirecting to login page');
+                window.location.href = '/login.html';
+                return; // Exit if no token
+            }
+
+            console.log('Token found:', token);
+            
+            document.getElementById('viewQuestionsButton').addEventListener('click', () => {
+                window.location.href = '/viewquestions.html';
+            });
+            document.getElementById('questionForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                console.log('Form submitted');
+
+                const question_text = document.getElementById('question_text').value;
+                const options = [
+                    document.getElementById('option1').value,
+                    document.getElementById('option2').value,
+                    document.getElementById('option3').value,
+                    document.getElementById('option4').value
+                ];
+
+                console.log('Data to send:', { level, question_text, options });
+
+                fetch('/level1questions', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': token
+                    },
+                    body: JSON.stringify({ question_text, options })
+                })
+                .then(response => {
+                    console.log('Fetch response:', response);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    alert('Question added successfully');
+                    loadQuestions();
+                })
+                .catch(error => console.error('Error:', error));
+            });
+
+            function loadQuestions() {
+                fetch('/questions', {
+                    headers: { 'Authorization': token }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const questionsList = document.getElementById('questionsList');
+                    questionsList.innerHTML = '';
+                    data.forEach(question => {
+                        questionsList.innerHTML += `
+                            <div class="card mt-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">${question.question_text}</h5>
+                                    <p class="card-text">Level: ${question.level}</p>
+                                    <ul>
+                                        <li>${question.option1}</li>
+                                        <li>${question.option2}</li>
+                                        <li>${question.option3}</li>
+                                        <li>${question.option4}</li>
+                                    </ul>
+                                    <button onclick="editQuestion(${question.id})" class="btn btn-warning">Edit</button>
+                                    <button onclick="deleteQuestion(${question.id})" class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            function editQuestion(id) {
+                // Implement edit functionality
+            }
+
+            function deleteQuestion(id) {
+                fetch(`/questions/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': token }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Question deleted successfully');
+                    loadQuestions();
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            loadQuestions();
+        });
+    </script>
+</body>
+</html>
