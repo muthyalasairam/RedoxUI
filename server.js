@@ -9,8 +9,7 @@ const cors = require('cors');
 app.use(cors({
     origin:'*',
     methods:['GET','POST','OPTIONS'],
-    allowedHeaders:['Content-Type'],
-    
+    allowedHeaders:['Content-Type']
 }));
 require('dotenv').config();
 
