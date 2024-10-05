@@ -102,18 +102,18 @@ app.delete('/level1questions/:id', (req, res) => {
 // });
 
 app.post('/registerGameUser', (req, res) => {
-    const { studentID, email, section, professorname } = req.body;
-
+    const {firstName,lastName,email, section, professorname, } = req.body;
+    console.log(req.body)
     // Manually insert studentID
-    const query = `INSERT INTO gameusers (StudentID, Email, Section, ProfessorName, Level1Score, Level2Score, Level3Score, Level4Score) 
-                   VALUES (?, ?, ?, ?, 0, 0, 0, 0)`;
+    const query = `INSERT INTO gameusers (Email, Section, ProfessorName, Level1Score, Level2Score, Level3Score, Level4Score,FirstName,LastName) 
+                   VALUES (?, ?, ?, 0, 0, 0, 0,?,?)`;
 
-    db.query(query, [studentID, email, section, professorname], (err, result) => {
+    db.query(query, [email, section, professorname,firstName,lastName], (err, result) => {
         if (err) {
             console.error('Error while inserting into database:', err);
             return res.status(500).send('Error registering the student');
         }
-        res.status(200).json({ message: 'Student registered successfully', studentID: studentID });
+        res.status(200).json({ message: 'Student registered successfully', name: firstName + " " + lastName });
     });
 });
 
