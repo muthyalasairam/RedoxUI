@@ -14,18 +14,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MySQL connection
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST,  
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  port: 3306
+  port: 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-db.connect(err => {
-    if (err) throw err;
-    console.log('MySQL Connected...');
-});
 
 // Register endpoint (no authentication needed)
 app.post('/register', (req, res) => {
@@ -35,6 +34,7 @@ app.post('/register', (req, res) => {
     const query = 'INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)';
     db.query(query, [username, hashedPassword, role], (err, result) => {
         if (err) return res.status(500).send('There was a problem registering the user');
+        else console.log("My Sql users table")
         res.status(200).send('User registered successfully');
     });
 });
@@ -48,6 +48,7 @@ app.post('/login', (req, res) => {
         if (err) {
             console.log(err)
             return res.status(500).send('Error on the server');}
+        else console.log("My Sql users table")
         if (!results.length) return res.status(404).send('No user found');
         
         const user = results[0];
@@ -61,6 +62,7 @@ app.post('/login', (req, res) => {
 app.get('/level1questions', (req, res) => {
     db.query('SELECT * FROM level1questions', (err, results) => {
         if (err) return res.status(500).json({ error: 'There was a problem finding the questions' });
+        else console.log("My Sql level1Questions table")
         res.status(200).json(results);
     });
 });
