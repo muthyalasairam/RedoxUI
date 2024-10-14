@@ -14,9 +14,9 @@
                 <label for="level">Select Level:</label>
                 <select class="form-control" id="level">
                     <option value="1">Level 1</option>
-                    <option value="2">Level 2</option>
+                    <option value="1">Level 2</option>
                     <option value="3">Level 3</option>
-                    <option value="4">Level 4</option>
+                    <!-- Add other levels as needed -->
                 </select>
             </div>
             <div class="form-group">
@@ -44,6 +44,7 @@
         <button id="viewQuestionsButton" class="btn btn-secondary mt-3">View Questions</button>
         <div id="questionsList" class="mt-5"></div>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             console.log('DOM fully loaded and parsed');
@@ -60,10 +61,13 @@
             document.getElementById('viewQuestionsButton').addEventListener('click', () => {
                 window.location.href = '/viewquestions.html';
             });
+
+            // Handle form submission for adding a question
             document.getElementById('questionForm').addEventListener('submit', function(event) {
                 event.preventDefault();
                 console.log('Form submitted');
 
+                const level = document.getElementById('level').value; // Get selected level
                 const question_text = document.getElementById('question_text').value;
                 const options = [
                     document.getElementById('option1').value,
@@ -74,7 +78,10 @@
 
                 console.log('Data to send:', { level, question_text, options });
 
-                fetch('/level1questions', {
+                // Determine the correct endpoint based on level
+                const endpoint = `/level${level}questions`; 
+
+                fetch(endpoint, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -94,54 +101,6 @@
                 .catch(error => console.error('Error:', error));
             });
 
-            function loadQuestions() {
-                fetch('/questions', {
-                    headers: { 'Authorization': token }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const questionsList = document.getElementById('questionsList');
-                    questionsList.innerHTML = '';
-                    data.forEach(question => {
-                        questionsList.innerHTML += `
-                            <div class="card mt-3">
-                                <div class="card-body">
-                                    <h5 class="card-title">${question.question_text}</h5>
-                                    <p class="card-text">Level: ${question.level}</p>
-                                    <ul>
-                                        <li>${question.option1}</li>
-                                        <li>${question.option2}</li>
-                                        <li>${question.option3}</li>
-                                        <li>${question.option4}</li>
-                                    </ul>
-                                    <button onclick="editQuestion(${question.id})" class="btn btn-warning">Edit</button>
-                                    <button onclick="deleteQuestion(${question.id})" class="btn btn-danger">Delete</button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                })
-                .catch(error => console.error('Error:', error));
-            }
-
-            function editQuestion(id) {
-                // Implement edit functionality
-            }
-
-            function deleteQuestion(id) {
-                fetch(`/questions/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': token }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert('Question deleted successfully');
-                    loadQuestions();
-                })
-                .catch(error => console.error('Error:', error));
-            }
-
-            loadQuestions();
         });
     </script>
 </body>

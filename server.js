@@ -96,6 +96,42 @@ app.delete('/level1questions/:id', (req, res) => {
     });
 });
 
+app.get('/level3questions', (req, res) => {
+    db.query('SELECT * FROM level3questions', (err, results) => {
+        if (err) return res.status(500).json({ error: 'There was a problem finding the questions' });
+        else console.log("My Sql level1Questions table")
+        res.status(200).json(results);
+    });
+});
+
+// POST endpoint to add questions (no authentication required)
+app.post('/level3questions', (req, res) => {
+    const { question_text, options } = req.body;
+    const query = 'INSERT INTO level3questions (question_text, correctOption, incorrectOption1, incorrectOption2, incorrectOption3) VALUES (?, ?, ?, ?, ?)';
+    db.query(query, [question_text, options[0], options[1], options[2], options[3]], (err, result) => {
+        if (err) return res.status(500).json({ error: 'There was a problem adding the question' });
+        res.status(200).json({ message: 'Question added successfully' });
+    });
+});
+
+// PUT endpoint to update questions (no authentication required)
+app.put('/level3questions/:id', (req, res) => {
+    const { question_text, options } = req.body;
+    const query = 'UPDATE level3questions SET question_text = ?, correctOption = ?, incorrectOption1 = ?, incorrectOption2 = ?, incorrectOption3 = ? WHERE id = ?';
+    db.query(query, [question_text, options[0], options[1], options[2], options[3], req.params.id], (err, result) => {
+        if (err) return res.status(500).json({ error: 'There was a problem updating the question' });
+        res.status(200).json({ message: 'Question updated successfully' });
+    });
+});
+
+// DELETE endpoint to remove questions (no authentication required)
+app.delete('/level3questions/:id', (req, res) => {
+    const query = 'DELETE FROM level3questions WHERE id = ?';
+    db.query(query, [req.params.id], (err, result) => {
+        if (err) return res.status(500).json({ error: 'There was a problem deleting the question' });
+        res.status(200).json({ message: 'Question deleted successfully' });
+    });
+});
 // Serve the HTML file
 // app.get('*', (req, res) => {
 //     res.sendFile(path.join(__dirname, 'public', 'index.html'));
