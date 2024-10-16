@@ -132,10 +132,6 @@ app.delete('/level3questions/:id', (req, res) => {
         res.status(200).json({ message: 'Question deleted successfully' });
     });
 });
-// Serve the HTML file
-// app.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// });
 
 app.post('/registerGameUser', (req, res) => {
     const {firstName,lastName,email, section, professorname, } = req.body;
@@ -180,7 +176,11 @@ app.post('/update_score', (req, res) => {
         query = `UPDATE gameusers SET Level1Score = ? WHERE email = ? AND (Level1Score < ? OR Level1Score IS NULL)`;
     } else if (level === "level2score") {
         query = `UPDATE gameusers SET Level2Score = ? WHERE email = ? AND (Level2Score < ? OR Level2Score IS NULL)`;
-    } else {
+    } 
+    else if (level === "level3score") {
+        query = `UPDATE gameusers SET Level3Score = ? WHERE email = ? AND (Level3Score < ? OR Level3Score IS NULL)`;
+    } 
+    else {
         return res.status(400).json({ message: 'Invalid level' });
     }
     console.log(query)
