@@ -198,6 +198,22 @@ app.post('/update_score', (req, res) => {
         }
     });
 });
+
+app.get('/get_all_user_info', (req, res) => {
+    const query = `
+        SELECT FirstName, LastName, ProfessorName, level1score, level2score, level3score 
+        FROM gameusers
+    `;
+    
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ error: 'Error fetching user info' });
+        }
+        
+        res.status(200).json(results);
+    });
+});
 // Start the server on port 3000
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
