@@ -201,7 +201,7 @@ app.post('/update_score', (req, res) => {
 
 app.get('/get_all_user_info', (req, res) => {
     const query = `
-        SELECT FirstName, LastName, ProfessorName, level1score, level2score, level3score 
+        SELECT FirstName, LastName, ProfessorName, level1score, level2score, level3score,level4score 
         FROM gameusers
     `;
     
