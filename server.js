@@ -222,19 +222,19 @@ app.get('/game/stats', (req, res) => {
         if (err) return res.status(500).json({ error: 'Database error' });
         stats.total_students = result[0].total_students;
 
-        db.query('SELECT COUNT(*) as level1_completed FROM gameusers WHERE level1score > 0', (err, result) => {
+        db.query('SELECT COUNT(*) as level1_completed FROM gameusers WHERE level1score > 70', (err, result) => {
             if (err) return res.status(500).json({ error: 'Database error' });
             stats.level1_completed = result[0].level1_completed;
 
-            db.query('SELECT COUNT(*) as level2_completed FROM gameusers WHERE level2score > 0', (err, result) => {
+            db.query('SELECT COUNT(*) as level2_completed FROM gameusers WHERE level2score > 70', (err, result) => {
                 if (err) return res.status(500).json({ error: 'Database error' });
                 stats.level2_completed = result[0].level2_completed;
 
-                db.query('SELECT COUNT(*) as level3_completed FROM gameusers WHERE level3score > 0', (err, result) => {
+                db.query('SELECT COUNT(*) as level3_completed FROM gameusers WHERE level3score > 70', (err, result) => {
                     if (err) return res.status(500).json({ error: 'Database error' });
                     stats.level3_completed = result[0].level3_completed;
 
-                    db.query('SELECT COUNT(*) as level4_completed FROM gameusers WHERE level4score > 0', (err, result) => {
+                    db.query('SELECT COUNT(*) as level4_completed FROM gameusers WHERE level4score > 70', (err, result) => {
                         if (err) return res.status(500).json({ error: 'Database error' });
                         stats.level4_completed = result[0].level4_completed;
                         console.log(stats)
