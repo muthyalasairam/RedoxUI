@@ -164,6 +164,37 @@ app.post('/update_score', async (req, res) => {
     }
 });
 
+// Get all user info (updated)
+app.get('/get_all_user_info', async (req, res) => {
+    try {
+        const query = `SELECT FirstName, LastName, ProfessorName, Level1Score, Level2Score, Level3Score, Level4Score FROM gameusers`;
+        const [results] = await connection.execute(query);
+        res.status(200).json(results);
+    } catch (err) {
+        console.error('Error fetching user info:', err);
+        res.status(500).json({ error: 'Error fetching user info' });
+    }
+});
+
+// Get user progress (updated)
+app.get('/get_user_progress/:email', async (req, res) => {
+    const email = req.params.email;
+    
+    try {
+        const query = `SELECT Level1Score, Level2Score, Level3Score FROM gameusers WHERE Email = ?`;
+        const [results] = await connection.execute(query, [email]);
+
+        if (results.length > 0) {
+            res.status(200).json(results[0]);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (err) {
+        console.error('Error fetching progress:', err);
+        res.status(500).json({ error: 'Error fetching progress' });
+    }
+});
+
 // Get game statistics
 app.get('/game/stats', async (req, res) => {
     const stats = {};
