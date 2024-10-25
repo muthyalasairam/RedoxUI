@@ -5,13 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Redox Questions</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .right-align {
+            float: right;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h2 class="mt-5">Manage Questions</h2>
+        <button id="dashboardButton" class="btn btn-info mb-3 right-align">Go to Dashboard</button>
+        <button id="viewQuestionsButton" class="btn btn-info mb-3 right-align  mr-2">View Questions</button>
         <form id="questionForm">
             <div class="form-group">
-                <label for="level">Select Level:</label>
+                <label for="level">Select Level</label>
                 <select class="form-control" id="level">
                     <option value="1">Level 1</option>
                     <option value="1">Level 2</option>
@@ -39,11 +46,12 @@
                 <label for="option4">Option 4 (Incorrect Answer):</label>
                 <input type="text" class="form-control" id="option4" placeholder="Incorrect Answer" required>
             </div>
-            <button type="submit" class="btn btn-primary">Add Question</button>
+            <button type="submit" class="btn btn-info mt-3">Add Question</button>
         </form>
-        <button id="viewQuestionsButton" class="btn btn-secondary mt-3">View Questions</button>
+        
         <div id="questionsList" class="mt-5"></div>
     </div>
+  
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -60,6 +68,9 @@
             
             document.getElementById('viewQuestionsButton').addEventListener('click', () => {
                 window.location.href = '/viewquestions.html';
+            });
+            document.getElementById('dashboardButton').addEventListener('click', () => {
+                window.location.href = '/dashboard.html';
             });
 
             // Handle form submission for adding a question
