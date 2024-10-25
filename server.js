@@ -1,249 +1,194 @@
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');  // Use promise-based MySQL
 const bodyParser = require('body-parser');
 const path = require('path');
 const bcrypt = require('bcrypt');
-const app = express();
 const crypto = require('crypto');
 const cors = require('cors');
-app.use(cors());
+const app = express();
 require('dotenv').config();
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MySQL connection
-const db = mysql.createPool({
-  host: process.env.DB_HOST,  
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  port: 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+let connection;
 
+// Asynchronous function to initialize MySQL connection
+const initializeConnection = async () => {
+    try {
+        connection = await mysql.createConnection({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASS,
+            database: process.env.DB_NAME,
+        });
+        console.log('MySQL connection established successfully.');
+    } catch (err) {
+        console.error('Error establishing MySQL connection:', err);
+        setTimeout(initializeConnection, 2000);  // Retry connection after 2 seconds
+    }
+};
 
-// Register endpoint (no authentication needed)
-app.post('/register', (req, res) => {
+// Initialize connection on server start
+initializeConnection();
+
+// Register endpoint
+app.post('/register', async (req, res) => {
     const { username, password, role } = req.body;
     const hashedPassword = bcrypt.hashSync(password, 8);
 
-    const query = 'INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)';
-    db.query(query, [username, hashedPassword, role], (err, result) => {
-        if (err) return res.status(500).send('There was a problem registering the user');
-        else console.log("My Sql users table")
+    try {
+        const query = 'INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)';
+        await connection.execute(query, [username, hashedPassword, role]);
+        console.log("User registered successfully.");
         res.status(200).send('User registered successfully');
-    });
+    } catch (err) {
+        console.error('There was a problem registering the user:', err);
+        res.status(500).send('There was a problem registering the user');
+    }
 });
 
-// Login endpoint (no authentication needed)
-app.post('/login', (req, res) => {
+// Login endpoint
+app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    const query = 'SELECT * FROM users WHERE username = ?';
-    console.log(`Username login ${username}`);
-    db.query(query, [username], (err, results) => {
-        if (err) {
-            console.log(err)
-            return res.status(500).send('Error on the server');}
-        else console.log("My Sql users table")
+
+    try {
+        const query = 'SELECT * FROM users WHERE username = ?';
+        const [results] = await connection.execute(query, [username]);
         if (!results.length) return res.status(404).send('No user found');
-        
+
         const user = results[0];
         const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+        // If password validation is needed, compare it here
 
         res.status(200).send({ auth: true });
-    });
+    } catch (err) {
+        console.error('Error on the server:', err);
+        res.status(500).send('Error on the server');
+    }
 });
 
-// GET endpoint for level1questions (no authentication required)
-app.get('/level1questions', (req, res) => {
-    db.query('SELECT * FROM level1questions', (err, results) => {
-        if (err) return res.status(500).json({ error: 'There was a problem finding the questions' });
-        else console.log("My Sql level1Questions table")
+// GET level1questions
+app.get('/level1questions', async (req, res) => {
+    try {
+        const [results] = await connection.execute('SELECT * FROM level1questions');
         res.status(200).json(results);
-    });
+    } catch (err) {
+        console.error('Error fetching level 1 questions:', err);
+        res.status(500).json({ error: 'There was a problem finding the questions' });
+    }
 });
 
-// POST endpoint to add questions (no authentication required)
-app.post('/level1questions', (req, res) => {
+// POST level1questions
+app.post('/level1questions', async (req, res) => {
     const { question_text, options } = req.body;
-    const query = 'INSERT INTO level1questions (question_text, correctOption, incorrectOption1, incorrectOption2, incorrectOption3) VALUES (?, ?, ?, ?, ?)';
-    db.query(query, [question_text, options[0], options[1], options[2], options[3]], (err, result) => {
-        if (err) return res.status(500).json({ error: 'There was a problem adding the question' });
+
+    try {
+        const query = 'INSERT INTO level1questions (question_text, correctOption, incorrectOption1, incorrectOption2, incorrectOption3) VALUES (?, ?, ?, ?, ?)';
+        await connection.execute(query, [question_text, options[0], options[1], options[2], options[3]]);
         res.status(200).json({ message: 'Question added successfully' });
-    });
+    } catch (err) {
+        console.error('Error adding level 1 question:', err);
+        res.status(500).json({ error: 'There was a problem adding the question' });
+    }
 });
 
-// PUT endpoint to update questions (no authentication required)
-app.put('/level1questions/:id', (req, res) => {
+// PUT level1questions
+app.put('/level1questions/:id', async (req, res) => {
     const { question_text, options } = req.body;
-    const query = 'UPDATE level1questions SET question_text = ?, correctOption = ?, incorrectOption1 = ?, incorrectOption2 = ?, incorrectOption3 = ? WHERE id = ?';
-    db.query(query, [question_text, options[0], options[1], options[2], options[3], req.params.id], (err, result) => {
-        if (err) return res.status(500).json({ error: 'There was a problem updating the question' });
+
+    try {
+        const query = 'UPDATE level1questions SET question_text = ?, correctOption = ?, incorrectOption1 = ?, incorrectOption2 = ?, incorrectOption3 = ? WHERE id = ?';
+        await connection.execute(query, [question_text, options[0], options[1], options[2], options[3], req.params.id]);
         res.status(200).json({ message: 'Question updated successfully' });
-    });
+    } catch (err) {
+        console.error('Error updating level 1 question:', err);
+        res.status(500).json({ error: 'There was a problem updating the question' });
+    }
 });
 
-// DELETE endpoint to remove questions (no authentication required)
-app.delete('/level1questions/:id', (req, res) => {
-    const query = 'DELETE FROM level1questions WHERE id = ?';
-    db.query(query, [req.params.id], (err, result) => {
-        if (err) return res.status(500).json({ error: 'There was a problem deleting the question' });
+// DELETE level1questions
+app.delete('/level1questions/:id', async (req, res) => {
+    try {
+        const query = 'DELETE FROM level1questions WHERE id = ?';
+        await connection.execute(query, [req.params.id]);
         res.status(200).json({ message: 'Question deleted successfully' });
-    });
+    } catch (err) {
+        console.error('Error deleting level 1 question:', err);
+        res.status(500).json({ error: 'There was a problem deleting the question' });
+    }
 });
 
-app.get('/level3questions', (req, res) => {
-    db.query('SELECT * FROM level3questions', (err, results) => {
-        if (err) return res.status(500).json({ error: 'There was a problem finding the questions' });
-        else console.log("My Sql level1Questions table")
-        res.status(200).json(results);
-    });
-});
+// Register game user
+app.post('/registerGameUser', async (req, res) => {
+    const { firstName, lastName, email, section, professorname } = req.body;
 
-// POST endpoint to add questions (no authentication required)
-app.post('/level3questions', (req, res) => {
-    const { question_text, options } = req.body;
-    const query = 'INSERT INTO level3questions (question_text, correctOption, incorrectOption1, incorrectOption2, incorrectOption3) VALUES (?, ?, ?, ?, ?)';
-    db.query(query, [question_text, options[0], options[1], options[2], options[3]], (err, result) => {
-        if (err) return res.status(500).json({ error: 'There was a problem adding the question' });
-        res.status(200).json({ message: 'Question added successfully' });
-    });
-});
-
-// PUT endpoint to update questions (no authentication required)
-app.put('/level3questions/:id', (req, res) => {
-    const { question_text, options } = req.body;
-    const query = 'UPDATE level3questions SET question_text = ?, correctOption = ?, incorrectOption1 = ?, incorrectOption2 = ?, incorrectOption3 = ? WHERE id = ?';
-    db.query(query, [question_text, options[0], options[1], options[2], options[3], req.params.id], (err, result) => {
-        if (err) return res.status(500).json({ error: 'There was a problem updating the question' });
-        res.status(200).json({ message: 'Question updated successfully' });
-    });
-});
-
-// DELETE endpoint to remove questions (no authentication required)
-app.delete('/level3questions/:id', (req, res) => {
-    const query = 'DELETE FROM level3questions WHERE id = ?';
-    db.query(query, [req.params.id], (err, result) => {
-        if (err) return res.status(500).json({ error: 'There was a problem deleting the question' });
-        res.status(200).json({ message: 'Question deleted successfully' });
-    });
-});
-
-app.post('/registerGameUser', (req, res) => {
-    const {firstName,lastName,email, section, professorname, } = req.body;
-    console.log(req.body)
-    // Manually insert studentID
-    const query = `INSERT INTO gameusers (Email, Section, ProfessorName, Level1Score, Level2Score, Level3Score, Level4Score,FirstName,LastName) 
-                   VALUES (?, ?, ?, 0, 0, 0, 0,?,?)`;
-
-    db.query(query, [email, section, professorname,firstName,lastName], (err, result) => {
-        if (err) {
-            console.error('Error while inserting into database:', err);
-            return res.status(500).send('Error registering the student');
-        }
+    try {
+        const query = `INSERT INTO gameusers (Email, Section, ProfessorName, Level1Score, Level2Score, Level3Score, Level4Score, FirstName, LastName) 
+                       VALUES (?, ?, ?, 0, 0, 0, 0, ?, ?)`;
+        await connection.execute(query, [email, section, professorname, firstName, lastName]);
         res.status(200).json({ message: 'Student registered successfully', name: firstName + " " + lastName });
-    });
+    } catch (err) {
+        console.error('Error registering game user:', err);
+        res.status(500).send('Error registering the student');
+    }
 });
 
-app.get('/get_user_progress/:email', (req, res) => {
-    const email = req.params.email;
-    const query = `SELECT Level1Score, Level2Score, Level3Score FROM gameusers WHERE Email = ?`;
-
-    db.query(query, [email], (err, results) => {
-        if (err) {
-            console.error('Database error:', err); // Log the error
-            return res.status(500).json({ error: 'Error fetching progress' });
-        }
-
-        if (results.length > 0) {
-            res.status(200).json(results[0]);  // Ensure you return JSON
-        } else {
-            res.status(404).json({ message: 'User not found' });
-        }
-    });
-});
-app.post('/update_score', (req, res) => {
+// Update user score
+app.post('/update_score', async (req, res) => {
     const { email, score, level } = req.body;
-    
+
     let query = '';
-    console.log(req.body)
-    // Check the string value of 'level'
     if (level === "level1score") {
         query = `UPDATE gameusers SET Level1Score = ? WHERE email = ? AND (Level1Score < ? OR Level1Score IS NULL)`;
     } else if (level === "level2score") {
         query = `UPDATE gameusers SET Level2Score = ? WHERE email = ? AND (Level2Score < ? OR Level2Score IS NULL)`;
-    } 
-    else if (level === "level3score") {
+    } else if (level === "level3score") {
         query = `UPDATE gameusers SET Level3Score = ? WHERE email = ? AND (Level3Score < ? OR Level3Score IS NULL)`;
-    } 
-    else {
+    } else {
         return res.status(400).json({ message: 'Invalid level' });
     }
-    console.log(query)
-    db.query(query, [score, email, score], (err, result) => {
-        console.log(err)
-        console.log(result)
-        if (err) {
-            return res.status(500).json({ error: 'Error updating score' });
-        }
 
+    try {
+        const [result] = await connection.execute(query, [score, email, score]);
         if (result.affectedRows > 0) {
             res.status(200).json({ message: `Score for ${level} updated successfully` });
         } else {
             res.status(404).json({ message: 'User not found or score is not higher' });
         }
-    });
+    } catch (err) {
+        console.error('Error updating score:', err);
+        res.status(500).json({ error: 'Error updating score' });
+    }
 });
 
-app.get('/get_all_user_info', (req, res) => {
-    const query = `
-        SELECT FirstName, LastName, ProfessorName, level1score, level2score, level3score,level4score 
-        FROM gameusers
-    `;
-    
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ error: 'Error fetching user info' });
-        }
-        
-        res.status(200).json(results);
-    });
-});
-
-app.get('/game/stats', (req, res) => {
+// Get game statistics
+app.get('/game/stats', async (req, res) => {
     const stats = {};
-    console.log("stats");
-    db.query('SELECT COUNT(*) as total_students FROM gameusers', (err, result) => {
-        if (err) return res.status(500).json({ error: 'Database error' });
-        stats.total_students = result[0].total_students;
 
-        db.query('SELECT COUNT(*) as level1_completed FROM gameusers WHERE level1score > 70', (err, result) => {
-            if (err) return res.status(500).json({ error: 'Database error' });
-            stats.level1_completed = result[0].level1_completed;
+    try {
+        const [result1] = await connection.execute('SELECT COUNT(*) as total_students FROM gameusers');
+        stats.total_students = result1[0].total_students;
 
-            db.query('SELECT COUNT(*) as level2_completed FROM gameusers WHERE level2score > 70', (err, result) => {
-                if (err) return res.status(500).json({ error: 'Database error' });
-                stats.level2_completed = result[0].level2_completed;
+        const [result2] = await connection.execute('SELECT COUNT(*) as level1_completed FROM gameusers WHERE level1score > 70');
+        stats.level1_completed = result2[0].level1_completed;
 
-                db.query('SELECT COUNT(*) as level3_completed FROM gameusers WHERE level3score > 70', (err, result) => {
-                    if (err) return res.status(500).json({ error: 'Database error' });
-                    stats.level3_completed = result[0].level3_completed;
+        const [result3] = await connection.execute('SELECT COUNT(*) as level2_completed FROM gameusers WHERE level2score > 70');
+        stats.level2_completed = result3[0].level2_completed;
 
-                    db.query('SELECT COUNT(*) as level4_completed FROM gameusers WHERE level4score > 70', (err, result) => {
-                        if (err) return res.status(500).json({ error: 'Database error' });
-                        stats.level4_completed = result[0].level4_completed;
-                        console.log(stats)
-                        res.status(200).json(stats);
-                    });
-                });
-            });
-        });
-    });
+        const [result4] = await connection.execute('SELECT COUNT(*) as level3_completed FROM gameusers WHERE level3score > 70');
+        stats.level3_completed = result4[0].level3_completed;
+
+        const [result5] = await connection.execute('SELECT COUNT(*) as level4_completed FROM gameusers WHERE level4score > 70');
+        stats.level4_completed = result5[0].level4_completed;
+
+        res.status(200).json(stats);
+    } catch (err) {
+        console.error('Database error fetching stats:', err);
+        res.status(500).json({ error: 'Database error' });
+    }
 });
 
 // Start the server on port 3000
