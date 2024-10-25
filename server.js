@@ -167,7 +167,7 @@ app.post('/update_score', async (req, res) => {
 // Get all user info (updated)
 app.get('/get_all_user_info', async (req, res) => {
     try {
-        const query = `SELECT FirstName, LastName, ProfessorName, Level1Score, Level2Score, Level3Score, Level4Score FROM gameusers`;
+        const query = `SELECT FirstName, LastName, ProfessorName, level1Score, level2Score, level3Score, level4Score FROM gameusers`;
         const [results] = await connection.execute(query);
         res.status(200).json(results);
     } catch (err) {
