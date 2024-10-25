@@ -36,7 +36,8 @@
             </div>
         </div>
     </div>
-    <div class = "container">        
+    <div class = "container">    
+        <button id="downloadExcelBtn" class="btn btn-success mt-3 right-align" style="display: none;">Download as Excel</button>    
         <table id="userScoresTable" class="table table-striped mt-3" style="display: none;">
             <thead>
                 <tr>
@@ -56,6 +57,7 @@
     </div>
     <!-- Load Chart.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <script>
         // Fetch and display charts once the DOM is fully loaded
@@ -202,9 +204,21 @@
                 });
                 
                 userScoresTable.style.display = 'table';
+                document.getElementById('downloadExcelBtn').style.display = 'block';
             })
             .catch(error => console.error('Error:', error));
+
         });
+        document.getElementById('downloadExcelBtn').addEventListener('click', () => {
+    const wb = XLSX.utils.book_new(); // Create a new workbook
+    const ws = XLSX.utils.table_to_sheet(document.getElementById('userScoresTable')); // Convert table to worksheet
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Student Scores');
+
+    // Generate Excel file and trigger download
+    XLSX.writeFile(wb, 'student_scores.xlsx');
+});
 
     </script>
 </body>
