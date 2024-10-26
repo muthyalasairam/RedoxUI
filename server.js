@@ -167,7 +167,7 @@ app.post('/update_score', async (req, res) => {
 // Get all user info (updated)
 app.get('/get_all_user_info', async (req, res) => {
     try {
-        const query = `SELECT FirstName, LastName, ProfessorName, level1Score, level2Score, level3Score, level4Score FROM gameusers`;
+        const query = `SELECT FirstName, LastName, ProfessorName, Level1Score, Level2Score, Level3Score, Level4Score FROM gameusers`;
         const [results] = await connection.execute(query);
         res.status(200).json(results);
     } catch (err) {
@@ -203,16 +203,16 @@ app.get('/game/stats', async (req, res) => {
         const [result1] = await connection.execute('SELECT COUNT(*) as total_students FROM gameusers');
         stats.total_students = result1[0].total_students;
 
-        const [result2] = await connection.execute('SELECT COUNT(*) as level1_completed FROM gameusers WHERE level1score > 70');
+        const [result2] = await connection.execute('SELECT COUNT(*) as level1_completed FROM gameusers WHERE Level1Score > 70');
         stats.level1_completed = result2[0].level1_completed;
 
-        const [result3] = await connection.execute('SELECT COUNT(*) as level2_completed FROM gameusers WHERE level2score > 70');
+        const [result3] = await connection.execute('SELECT COUNT(*) as level2_completed FROM gameusers WHERE Level2Score > 70');
         stats.level2_completed = result3[0].level2_completed;
 
-        const [result4] = await connection.execute('SELECT COUNT(*) as level3_completed FROM gameusers WHERE level3score > 70');
+        const [result4] = await connection.execute('SELECT COUNT(*) as level3_completed FROM gameusers WHERE Level3Score > 70');
         stats.level3_completed = result4[0].level3_completed;
 
-        const [result5] = await connection.execute('SELECT COUNT(*) as level4_completed FROM gameusers WHERE level4score > 70');
+        const [result5] = await connection.execute('SELECT COUNT(*) as level4_completed FROM gameusers WHERE Level4Score > 70');
         stats.level4_completed = result5[0].level4_completed;
 
         res.status(200).json(stats);
