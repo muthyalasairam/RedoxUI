@@ -21,8 +21,9 @@ const db = mysql.createPool({
   database: process.env.DB_NAME,
   port: 3306,
   waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+  connectionLimit: 30,  // Increased limit
+  queueLimit: 0,
+  connectTimeout: 10000 
 });
 
 
