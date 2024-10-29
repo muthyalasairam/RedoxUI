@@ -139,7 +139,7 @@ app.post('/registerGameUser', (req, res) => {
     console.log(req.body)
     // Manually insert studentID
     const query = `INSERT INTO gameusers (Email, Level1Score, Level2Score, Level3Score, Level4Score,FirstName,LastName) 
-                   VALUES (?, ?, ?, 0, 0, 0, 0,?,?)`;
+                   VALUES (?, 0, 0, 0, 0,?,?)`;
 
     db.query(query, [email,firstName,lastName], (err, result) => {
         if (err) {
@@ -152,7 +152,7 @@ app.post('/registerGameUser', (req, res) => {
 
 app.get('/get_user_progress/:email', (req, res) => {
     const email = req.params.email;
-    const query = `SELECT Level1Score, Level2Score, Level3Score FROM gameusers WHERE Email = ?`;
+    const query = `SELECT Level1Score,Level2Score, Level3Score FROM gameusers WHERE Email = ?`;
 
     db.query(query, [email], (err, results) => {
         if (err) {
