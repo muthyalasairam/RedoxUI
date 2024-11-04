@@ -15,57 +15,111 @@
     <div class="container">
         <h2 class="mt-5">Manage Questions</h2>
         <button id="dashboardButton" class="btn btn-info mb-3 right-align">Go to Dashboard</button>
-        <button id="viewQuestionsButton" class="btn btn-info mb-3 right-align  mr-2">View Questions</button>
-        <form id="questionForm">
+        <button id="viewQuestionsButton" class="btn btn-info mb-3 right-align mr-2">View Questions</button>
+        
+        <!-- Form for Questions -->
+        <form id="questionForm" novalidate>
             <div class="form-group">
                 <label for="level">Select Level</label>
-                <select class="form-control" id="level">
+                <select class="form-control" id="level" onchange="toggleLevel4Format()">
                     <option value="1">Level 1</option>
-                    <option value="1">Level 2</option>
+                    <option value="2">Level 2</option>
                     <option value="3">Level 3</option>
-                    <!-- Add other levels as needed -->
+                    <option value="4">Level 4-I</option>
+                    <option value="5">Level 4-II</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label for="question_text">Question:</label>
-                <input type="text" class="form-control" id="question_text" required>
+            
+            <!-- Default format for Levels 1, 2, and 3 -->
+            <div id="default-format">
+                <div class="form-group">
+                    <label for="question_text">Question:</label>
+                    <input type="text" class="form-control" id="question_text" name="question_text" required>
+                </div>
+                <div class="form-group">
+                    <label for="option1">Option 1 (Correct Answer):</label>
+                    <input type="text" class="form-control" id="option1" name="option1" placeholder="Correct Answer" required>
+                </div>
+                <div class="form-group">
+                    <label for="option2">Option 2 (Incorrect Answer):</label>
+                    <input type="text" class="form-control" id="option2" name="option2" placeholder="Incorrect Answer" required>
+                </div>
+                <div class="form-group">
+                    <label for="option3">Option 3 (Incorrect Answer):</label>
+                    <input type="text" class="form-control" id="option3" name="option3" placeholder="Incorrect Answer" required>
+                </div>
+                <div class="form-group">
+                    <label for="option4">Option 4 (Incorrect Answer):</label>
+                    <input type="text" class="form-control" id="option4" name="option4" placeholder="Incorrect Answer" required>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="option1">Option 1 (Correct Answer):</label>
-                <input type="text" class="form-control" id="option1" placeholder="Correct Answer" required>
+            
+            <!-- Custom format for Level 4-I and Level 4-II -->
+            <div id="level4-format" style="display: none;">
+                <div class="form-group">
+                    <label for="question_text_4">Level 4 Question:</label>
+                    <input type="text" class="form-control" id="question_text_4" name="question_text_4" required>
+                </div>
+                <div class="form-group">
+                    <div id="toolbar">
+                        <button type="button" class="ql-script" value="sub">Subscript</button>
+                        <button type="button" class="ql-script" value="super">Superscript</button>
+                        <button type="button" id="arrowButton">→</button>
+                    </div>
+                    <label for="equation">Equation (if applicable):</label>
+                    <div id="equationEditor" class="form-control" style="min-height: 50px;"></div>
+                    <input type="hidden" id="equationInput" name="equation">
+                </div>
+                <div class="form-group">
+                    <label for="correct_option">Correct Answer:</label>
+                    <input type="text" class="form-control" id="correct_option" name="correct_option" placeholder="Correct Answer" required>
+                </div>
+                <div id="additional-options" class="form-group">
+                    <label>Other Options:</label>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" placeholder="Incorrect Answer" required>
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-danger" onclick="removeOption(this)">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addOption()">Add Option</button>
             </div>
-            <div class="form-group">
-                <label for="option2">Option 2 (Incorrect Answer):</label>
-                <input type="text" class="form-control" id="option2" placeholder="Incorrect Answer" required>
-            </div>
-            <div class="form-group">
-                <label for="option3">Option 3 (Incorrect Answer):</label>
-                <input type="text" class="form-control" id="option3" placeholder="Incorrect Answer" required>
-            </div>
-            <div class="form-group">
-                <label for="option4">Option 4 (Incorrect Answer):</label>
-                <input type="text" class="form-control" id="option4" placeholder="Incorrect Answer" required>
-            </div>
+            
+            <!-- Submit button -->
             <button type="submit" class="btn btn-info mt-3">Add Question</button>
         </form>
         
         <div id="questionsList" class="mt-5"></div>
     </div>
-  
-
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            console.log('DOM fully loaded and parsed');
-            
+        document.addEventListener('DOMContentLoaded', () => {
+            const quill = new Quill('#equationEditor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: {
+                        container: '#toolbar'
+                    }
+                }
+            });
+
+            document.getElementById('arrowButton').addEventListener('click', () => {
+                const arrowSymbol = '→';
+                const range = quill.getSelection();
+                if (range) {
+                    quill.insertText(range.index, arrowSymbol);
+                    quill.setSelection(range.index + arrowSymbol.length);
+                }
+            });
+
             const token = localStorage.getItem('token');
             if (!token) {
-                console.log('No token found, redirecting to login page');
                 window.location.href = '/login.html';
-                return; // Exit if no token
+                return;
             }
 
-            console.log('Token found:', token);
-            
             document.getElementById('viewQuestionsButton').addEventListener('click', () => {
                 window.location.href = '/viewquestions.html';
             });
@@ -73,24 +127,66 @@
                 window.location.href = '/dashboard.html';
             });
 
-            // Handle form submission for adding a question
+            // Function to convert <sub> and <sup> HTML tags to Unicode characters
+            function convertHtmlToUnicode(html) {
+                // Convert <sub> tags to Unicode subscripts
+                html = html.replace(/<sub>(.*?)<\/sub>/g, (_, text) => {
+                    return text.split('').map(char => String.fromCharCode(char.charCodeAt(0) + 8272)).join('');
+                });
+
+                // Convert <sup> tags to Unicode superscripts
+                html = html.replace(/<sup>(.*?)<\/sup>/g, (_, text) => {
+                    return text.split('').map(char => {
+                        const supMap = {
+                            '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+                            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹'
+                        };
+                        return supMap[char] || char;
+                    }).join('');
+                });
+
+                // Remove remaining HTML tags
+                return html.replace(/<[^>]*>?/gm, '');
+            }
+
             document.getElementById('questionForm').addEventListener('submit', function(event) {
                 event.preventDefault();
-                console.log('Form submitted');
 
-                const level = document.getElementById('level').value; // Get selected level
-                const question_text = document.getElementById('question_text').value;
-                const options = [
-                    document.getElementById('option1').value,
-                    document.getElementById('option2').value,
-                    document.getElementById('option3').value,
-                    document.getElementById('option4').value
-                ];
+                // Get full HTML from Quill
+                let equationHtml = quill.root.innerHTML;
 
-                console.log('Data to send:', { level, question_text, options });
+                // Convert to Unicode subscripts/superscripts
+                const equationUnicode = convertHtmlToUnicode(equationHtml);
 
-                // Determine the correct endpoint based on level
-                const endpoint = `/level${level}questions`; 
+                // Store the processed Unicode text in the hidden input
+                document.getElementById('equationInput').value = equationUnicode;
+
+                const level = document.getElementById('level').value;
+                let questionData;
+
+                if (level === "4" || level === "5") {
+                    const question_text = document.getElementById('question_text_4').value;
+                    const equation = document.getElementById('equationInput').value;  // Store converted Unicode text
+                    const correctOption = document.getElementById('correct_option').value;
+
+                    const options = Array.from(document.querySelectorAll('#additional-options .input-group .form-control')).map(opt => opt.value);
+
+                    questionData = { question_text, equation, correctOption, options };
+                } else {
+                    const question_text = document.getElementById('question_text').value;
+                    const options = [
+                        document.getElementById('option1').value,
+                        document.getElementById('option2').value,
+                        document.getElementById('option3').value,
+                        document.getElementById('option4').value
+                    ];
+
+                    questionData = { question_text, options };
+                }
+
+                console.log('Data to send:', questionData);
+
+                const endpoint = `/level${level}questions`;
 
                 fetch(endpoint, {
                     method: 'POST',
@@ -98,21 +194,65 @@
                         'Content-Type': 'application/json',
                         'Authorization': token
                     },
-                    body: JSON.stringify({ question_text, options })
+                    body: JSON.stringify(questionData)
                 })
                 .then(response => {
-                    console.log('Fetch response:', response);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-                    alert('Question added successfully');
-                    loadQuestions();
-                })
-                .catch(error => console.error('Error:', error));
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+    }
+    return response.json(); 
+})
+.then(data => {
+    alert('Question added successfully');
+    document.getElementById('questionForm').reset();
+    toggleLevel4Format();
+})
+.catch(error => {
+    console.error('Error:', error);
+    alert('There was an error adding the question. Please try again.');
+});
             });
-
         });
+
+        function toggleLevel4Format() {
+            const level = document.getElementById('level').value;
+            const isLevel4 = (level === "4" || level === "5");
+    
+            document.getElementById('default-format').style.display = isLevel4 ? 'none' : 'block';
+            document.getElementById('level4-format').style.display = isLevel4 ? 'block' : 'none';
+            
+            document.querySelectorAll('#default-format input').forEach(input => {
+                input.required = !isLevel4;
+            });
+            document.querySelectorAll('#level4-format input').forEach(input => {
+                input.required = isLevel4;
+            });
+        }
+
+        function addOption() {
+            const optionContainer = document.createElement('div');
+            optionContainer.className = 'input-group mb-2';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control';
+            input.placeholder = 'Incorrect Answer';
+
+            const buttonGroup = document.createElement('div');
+            buttonGroup.className = 'input-group-append';
+
+            const removeButton = document.createElement('button');
+            removeButton.className = 'btn btn-danger';
+            removeButton.type = 'button';
+            removeButton.textContent = 'Remove';
+            removeButton.onclick = () => optionContainer.remove();
+
+            buttonGroup.appendChild(removeButton);
+            optionContainer.appendChild(input);
+            optionContainer.appendChild(buttonGroup);
+
+            document.getElementById('additional-options').appendChild(optionContainer);
+        }
     </script>
 </body>
 </html>

@@ -155,6 +155,33 @@ app.get('/level3questions', async (req, res) => {
   }
 });
 
+
+app.get('/level4questions', async (req, res) => {
+  const query = 'SELECT * FROM level4questionspart1';
+
+  try {
+    const results = await retryQuery(query, []);
+    res.status(200).json(results);
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'There was a problem finding the questions' });
+  }
+});
+
+
+app.get('/level5questions', async (req, res) => {
+  const query = 'SELECT * FROM level4questionspart2';
+
+  try {
+    const results = await retryQuery(query, []);
+    res.status(200).json(results);
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'There was a problem finding the questions' });
+  }
+});
+
+
 // POST endpoint to add level3questions
 app.post('/level3questions', async (req, res) => {
   const { question_text, options } = req.body;
@@ -162,6 +189,34 @@ app.post('/level3questions', async (req, res) => {
 
   try {
     await retryQuery(query, [question_text, options[0], options[1], options[2], options[3]]);
+    res.status(200).json({ message: 'Question added successfully' });
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'There was a problem adding the question' });
+  }
+});
+
+app.post('/level4questions', async (req, res) => {
+  const { question_text, equation,correctOption,options } = req.body;
+  const optionsJson = JSON.stringify(options);
+  const query = 'INSERT INTO level4questionspart1 (question_text, equation, correctOption, options) VALUES (?, ?, ?, ?)';
+
+  try {
+    await retryQuery(query, [question_text, equation,correctOption,optionsJson]);
+    res.status(200).json({ message: 'Question added successfully' });
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'There was a problem adding the question' });
+  }
+});
+
+app.post('/level5questions', async (req, res) => {
+  const { question_text, equation,correctOption, options } = req.body;
+  const optionsJson = JSON.stringify(options);
+  const query = 'INSERT INTO level4questionspart2 (question_text, equation, correctOption, options) VALUES (?, ?, ?, ?)';
+
+  try {
+    await retryQuery(query, [question_text, equation,correctOption,optionsJson]);
     res.status(200).json({ message: 'Question added successfully' });
   } catch (err) {
     console.error('Database error:', err);
@@ -183,6 +238,34 @@ app.put('/level3questions/:id', async (req, res) => {
   }
 });
 
+app.put('/level4questions/:id', async (req, res) => {
+  const { question_text, equation,correctOption,options } = req.body;
+  const optionsJson = JSON.stringify(options);
+  const query = 'UPDATE level4questionspart1 SET question_text = ?, equation = ?, correctOption = ?, options = ? WHERE id = ?';
+
+  try {
+    await retryQuery(query, [question_text, equation,correctOption,optionsJson, req.params.id]);
+    res.status(200).json({ message: 'Question updated successfully' });
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'There was a problem updating the question' });
+  }
+});
+
+
+app.put('/level5questions/:id', async (req, res) => {
+  const { question_text, equation,correctOption,options } = req.body;
+  const query = 'UPDATE level4questionspart2 SET question_text = ?, equation = ?, correctOption = ?, options = ? WHERE id = ?';
+  const optionsJson = JSON.stringify(options);
+  try {
+    await retryQuery(query, [question_text, equation,correctOption,optionsJson, req.params.id]);
+    res.status(200).json({ message: 'Question updated successfully' });
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'There was a problem updating the question' });
+  }
+});
+
 // DELETE endpoint to remove level3questions
 app.delete('/level3questions/:id', async (req, res) => {
   const query = 'DELETE FROM level3questions WHERE id = ?';
@@ -196,6 +279,28 @@ app.delete('/level3questions/:id', async (req, res) => {
   }
 });
 
+app.delete('/level4questions/:id', async (req, res) => {
+  const query = 'DELETE FROM level4questionspart1 WHERE id = ?';
+
+  try {
+    await retryQuery(query, [req.params.id]);
+    res.status(200).json({ message: 'Question deleted successfully' });
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'There was a problem deleting the question' });
+  }
+});
+app.delete('/level5questions/:id', async (req, res) => {
+  const query = 'DELETE FROM level4questionspart2 WHERE id = ?';
+
+  try {
+    await retryQuery(query, [req.params.id]);
+    res.status(200).json({ message: 'Question deleted successfully' });
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'There was a problem deleting the question' });
+  }
+});
 // Register Game User endpoint
 app.post('/registerGameUser', async (req, res) => {
   const { firstName, lastName, email } = req.body;
@@ -275,16 +380,16 @@ app.get('/game/stats', async (req, res) => {
     const totalStudents = await retryQuery('SELECT COUNT(*) as total_students FROM gameusers', []);
     stats.total_students = totalStudents[0].total_students;
 
-    const level1Completed = await retryQuery('SELECT COUNT(*) as level1_completed FROM gameusers WHERE Level1Score > 70', []);
+    const level1Completed = await retryQuery('SELECT COUNT(*) as level1_completed FROM gameusers WHERE Level1Score >= 70', []);
     stats.level1_completed = level1Completed[0].level1_completed;
 
-    const level2Completed = await retryQuery('SELECT COUNT(*) as level2_completed FROM gameusers WHERE Level2Score > 70', []);
+    const level2Completed = await retryQuery('SELECT COUNT(*) as level2_completed FROM gameusers WHERE Level2Score >= 70', []);
     stats.level2_completed = level2Completed[0].level2_completed;
 
-    const level3Completed = await retryQuery('SELECT COUNT(*) as level3_completed FROM gameusers WHERE Level3Score > 70', []);
+    const level3Completed = await retryQuery('SELECT COUNT(*) as level3_completed FROM gameusers WHERE Level3Score >= 70', []);
     stats.level3_completed = level3Completed[0].level3_completed;
 
-    const level4Completed = await retryQuery('SELECT COUNT(*) as level4_completed FROM gameusers WHERE Level4Score > 70', []);
+    const level4Completed = await retryQuery('SELECT COUNT(*) as level4_completed FROM gameusers WHERE Level4Score >= 70', []);
     stats.level4_completed = level4Completed[0].level4_completed;
 
     res.status(200).json(stats);
