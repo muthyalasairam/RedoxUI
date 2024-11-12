@@ -32,13 +32,13 @@
             <!-- Default format for Levels 1, 2, and 3 -->
             <div id="default-format">
                 <div class="form-group">
-                    <div id="toolbar">
+                    <div id="toolbar1">
                         <button type="button" class="ql-script" value="sub">Subscript</button>
                         <button type="button" class="ql-script" value="super">Superscript</button>
-                        <button type="button" id="arrowButton">→</button>
+                        <button type="button" id="arrowButton1">→</button>
                     </div>
                     <label for="question_text">Question:</label>
-                    <div id="equationEditor" class="form-control" style="min-height: 50px;"></div>
+                    <div id="equationEditor1" class="form-control" style="min-height: 50px;"></div>
                     <input type="hidden" class="form-control" id="question_text" name="question_text" required>
                 </div>
                 <div class="form-group">
@@ -109,6 +109,14 @@
                     }
                 }
             });
+            const quill1 = new Quill('#equationEditor1', {
+                theme: 'snow',
+                modules: {
+                    toolbar: {
+                        container: '#toolbar1'
+                    }
+                }
+            });
 
             document.getElementById('arrowButton').addEventListener('click', () => {
                 const arrowSymbol = '→';
@@ -116,6 +124,15 @@
                 if (range) {
                     quill.insertText(range.index, arrowSymbol);
                     quill.setSelection(range.index + arrowSymbol.length);
+                }
+            });
+            
+            document.getElementById('arrowButton1').addEventListener('click', () => {
+                const arrowSymbol = '→';
+                const range = quill.getSelection();
+                if (range) {
+                    quill1.insertText(range.index, arrowSymbol);
+                    quill1.setSelection(range.index + arrowSymbol.length);
                 }
             });
 
@@ -144,7 +161,7 @@
                     return text.split('').map(char => {
                         const supMap = {
                             '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
-                            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹'
+                            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹','+': '⁺', '-': '⁻'
                         };
                         return supMap[char] || char;
                     }).join('');
@@ -177,7 +194,7 @@
 
                     questionData = { question_text, equation, correctOption, options };
                 } else {
-                    let equationHtml = quill.root.innerHTML;
+                    let equationHtml = quill1.root.innerHTML;
                     const equationUnicode = convertHtmlToUnicode(equationHtml);
                     document.getElementById('question_text').value = equationUnicode;
                     const question_text = document.getElementById('question_text').value;

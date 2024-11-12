@@ -227,6 +227,7 @@ app.post('/level5questions', async (req, res) => {
 // PUT endpoint to update level3questions
 app.put('/level3questions/:id', async (req, res) => {
   const { question_text, options } = req.body;
+ 
   const query = 'UPDATE level3questions SET question_text = ?, correctOption = ?, incorrectOption1 = ?, incorrectOption2 = ?, incorrectOption3 = ? WHERE id = ?';
 
   try {
@@ -241,6 +242,7 @@ app.put('/level3questions/:id', async (req, res) => {
 app.put('/level4questions/:id', async (req, res) => {
   const { question_text, equation,correctOption,options } = req.body;
   const optionsJson = JSON.stringify(options);
+  console.log(equation)
   const query = 'UPDATE level4questionspart1 SET question_text = ?, equation = ?, correctOption = ?, options = ? WHERE id = ?';
 
   try {
