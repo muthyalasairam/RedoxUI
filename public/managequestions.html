@@ -150,26 +150,30 @@
             });
 
             // Function to convert <sub> and <sup> HTML tags to Unicode characters
-            function convertHtmlToUnicode(html) {
-                // Convert <sub> tags to Unicode subscripts
-                html = html.replace(/<sub>(.*?)<\/sub>/g, (_, text) => {
-                    return text.split('').map(char => String.fromCharCode(char.charCodeAt(0) + 8272)).join('');
-                });
+                function convertHtmlToUnicode(html) {
+    // Subscript conversion
+    html = html.replace(/<sub>(.*?)<\/sub>/g, (_, text) => {
+        const subMap = {
+            '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+            '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
+            '+': '₊', '-': '₋'
+        };
+        return text.split('').map(char => subMap[char] || char).join('');
+    });
 
-                // Convert <sup> tags to Unicode superscripts
-                html = html.replace(/<sup>(.*?)<\/sup>/g, (_, text) => {
-                    return text.split('').map(char => {
-                        const supMap = {
-                            '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
-                            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹','+': '⁺', '-': '⁻'
-                        };
-                        return supMap[char] || char;
-                    }).join('');
-                });
+    // Superscript conversion
+    html = html.replace(/<sup>(.*?)<\/sup>/g, (_, text) => {
+        const supMap = {
+            '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+            '+': '⁺', '-': '⁻'
+        };
+        return text.split('').map(char => supMap[char] || char).join('');
+    });
 
-                // Remove remaining HTML tags
-                return html.replace(/<[^>]*>?/gm, '');
-            }
+    // Remove any remaining HTML tags
+    return html.replace(/<[^>]*>?/gm, '');
+}
 
             document.getElementById('questionForm').addEventListener('submit', function(event) {
                 event.preventDefault();
