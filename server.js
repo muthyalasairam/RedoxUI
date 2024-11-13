@@ -305,11 +305,11 @@ app.delete('/level5questions/:id', async (req, res) => {
 });
 // Register Game User endpoint
 app.post('/registerGameUser', async (req, res) => {
-  const { firstName, lastName, email } = req.body;
-  const query = `INSERT INTO gameusers (Email, Level1Score, Level2Score, Level3Score, Level4Score, FirstName, LastName) VALUES (?, 0, 0, 0, 0, ?, ?)`;
+  const { firstName, lastName, email,section } = req.body;
+  const query = `INSERT INTO gameusers (Email, Level1Score, Level2Score, Level3Score, Level4Score, FirstName, LastName,section) VALUES (?, 0, 0, 0, 0, ?, ?,?)`;
 
   try {
-    await retryQuery(query, [email, firstName, lastName]);
+    await retryQuery(query, [email, firstName, lastName,section]);
     res.status(200).json({ message: 'Student registered successfully', name: `${firstName} ${lastName}` });
   } catch (err) {
     console.error('Database error:', err);
@@ -364,7 +364,7 @@ app.post('/update_score', async (req, res) => {
 
 // GET all user info
 app.get('/get_all_user_info', async (req, res) => {
-  const query = 'SELECT FirstName, LastName, Level1Score, Level2Score, Level3Score, Level4Score FROM gameusers';
+  const query = 'SELECT FirstName, LastName, Level1Score, Level2Score, Level3Score, Level4Score,section FROM gameusers';
 
   try {
     const results = await retryQuery(query, []);
