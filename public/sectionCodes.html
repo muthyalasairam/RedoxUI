@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section Management</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <label for="section1">Section 1</label>
+            <input type="text" id="section1" />
+        </div>
+        <div class="section">
+            <label for="section2">Section 2</label>
+            <input type="text" id="section2" />
+        </div>
+        <div class="section">
+            <label for="section3">Section 3</label>
+            <input type="text" id="section3" />
+        </div>
+        <div class="section">
+            <label for="section4">Section 4</label>
+            <input type="text" id="section4" />
+        </div>
+        <button id="saveChanges">Save Changes</button>
+    </div>
+
+    <script>
+        // Fetch sections from the backend and populate input fields
+        async function fetchSections() {
+            try {
+                const response = await fetch('/sections');
+                const data = await response.json();
+                const sectionData = data[0]
+                console.log(data)
+                document.getElementById('section1').value = sectionData.section1;
+                document.getElementById('section2').value = sectionData.section2;
+                document.getElementById('section3').value = sectionData.section3;
+                document.getElementById('section4').value = sectionData.section4;
+            } catch (error) {
+                console.error('Error fetching sections:', error);
+            }
+        }
+
+        // Save updated sections to the backend
+        async function saveSections() {
+            const section1 = document.getElementById('section1').value;
+            const section2 = document.getElementById('section2').value;
+            const section3 = document.getElementById('section3').value;
+            const section4 = document.getElementById('section4').value;
+
+            try {
+                const response = await fetch('/sections', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ section1, section2, section3, section4 })
+                });
+
+                const data = await response.json();
+                alert(data.message);
+            } catch (error) {
+                console.error('Error saving sections:', error);
+            }
+        }
+
+        document.getElementById('saveChanges').addEventListener('click', saveSections);
+
+        // Fetch sections on page load
+        window.onload = fetchSections;
+    </script>
+</body>
+</html>

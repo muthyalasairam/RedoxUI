@@ -375,6 +375,38 @@ app.get('/get_all_user_info', async (req, res) => {
   }
 });
 
+// GET all user info
+app.get('/sections', async (req, res) => {
+  const query = 'SELECT * from sections';
+
+  try {
+    const results = await retryQuery(query, []);
+    res.status(200).json(results);
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'Error fetching sections'});
+  }
+});
+
+app.put('/sections', async (req, res) => {
+  const { section1, section2, section3, section4 } = req.body;
+  const query = `
+      UPDATE sections SET
+      section1 = ?,
+      section2 = ?,
+      section3 = ?,
+      section4 = ?
+      WHERE id = 1
+  `;
+  try {
+    await retryQuery(query, [section1, section2,section3,section4]);
+    res.status(200).json({ message: 'Codes updated successfully' });
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'There was a problem updating the code' });
+  }
+});
+
 // Game stats endpoint
 app.get('/game/stats', async (req, res) => {
   const stats = {};
