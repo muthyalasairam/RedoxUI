@@ -303,7 +303,7 @@ app.delete('/level5questions/:id', async (req, res) => {
     res.status(500).json({ error: 'There was a problem deleting the question' });
   }
 });
-// Register Game User endpoint
+
 app.post('/registerGameUser', async (req, res) => {
   const { firstName, lastName, email,section } = req.body;
   const query = `INSERT INTO gameusers (Email, Level1Score, Level2Score, Level3Score, Level4Score, FirstName, LastName,section) VALUES (?, 0, 0, 0, 0, ?, ?,?)`;
@@ -317,7 +317,6 @@ app.post('/registerGameUser', async (req, res) => {
   }
 });
 
-// GET user progress endpoint
 app.get('/get_user_progress/:email', async (req, res) => {
   const query = `SELECT Level1Score, Level2Score, Level3Score FROM gameusers WHERE Email = ?`;
 
@@ -365,7 +364,7 @@ app.post('/update_score', async (req, res) => {
 // GET all user info
 app.get('/get_all_user_info', async (req, res) => {
   const query = 'SELECT FirstName, LastName, Level1Score, Level2Score, Level3Score, Level4Score,section FROM gameusers';
-
+  
   try {
     const results = await retryQuery(query, []);
     res.status(200).json(results);
@@ -375,7 +374,6 @@ app.get('/get_all_user_info', async (req, res) => {
   }
 });
 
-// GET all user info
 app.get('/sections', async (req, res) => {
   const query = 'SELECT * from sections';
 
@@ -436,12 +434,12 @@ app.get('/game/stats', async (req, res) => {
 app.put('/update_section_to_other', async (req, res) => {
 
   const {selectedSection} = req.body
-  const query = `UPDATE gameusers SET section = 'Other' where section = ? `;
+  const query = `UPDATE gameusers SET section = 'other' where section = ? `;
 
 
   try {
       const result = await retryQuery(query, [selectedSection]);
-      res.status(200).json({ message: 'Sections updated to Other successfully' });
+      res.status(200).json({ message: 'Sections updated to other successfully' });
   } catch (err) {
       console.error('Database error:', err);
       res.status(500).json({ error: 'Error updating sections' });

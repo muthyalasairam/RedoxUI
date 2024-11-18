@@ -58,9 +58,10 @@
     <div class="container" id="No Data"></div>
 
     <div class="container">
-        <button id="changeSectionBtn" class="btn btn-warning mt-3 mr -2 right-align" style="display: none;">Completed</button>
-        <button id="downloadExcelBtn" class="btn btn-success mt-3 right-align" style="display: none;">Download as
-            Excel</button>
+        <div class="container mt-3 d-flex justify-content-end">
+            <button id="downloadExcelBtn" class="btn btn-success mr-3" style="display: none;">Download as Excel</button>
+            <button id="changeSectionBtn" class="btn btn-warning" style="display: none;">Completed</button>
+        </div>        
         <table id="userScoresTable" class="table table-striped mt-3" style="display: none;">
             <thead>
                 <tr>
@@ -290,7 +291,7 @@
                 user.section ? user.section.toLowerCase().trim() : ''
             )
         );
-            } else if (section === 'Other') {
+            } else if (section.toLowerCase === 'other') {
                 return data.filter(user => !['section 1', 'section 2', 'section 3', 'section 4'].includes(user.section ? user.section.toLowerCase().trim() : ''));
             } else {
                 return data.filter(user => user.section && user.section.toLowerCase().trim() === section.toLowerCase().trim());
@@ -343,7 +344,7 @@
             document.getElementById('downloadExcelBtn').style.display = data.length ? 'block' : 'none';
             var selectedSection = document.getElementById('sectionDropdown').innerText.trim()
             console.log(selectedSection)
-            if(!(selectedSection === 'Other' || selectedSection === 'All')){
+            if(!(selectedSection.toLowerCase === 'other' || selectedSection === 'All')){
             document.getElementById('changeSectionBtn').style.display = data.length ? 'block' : 'none';
             }
         }
