@@ -433,6 +433,21 @@ app.get('/game/stats', async (req, res) => {
   }
 });
 
+app.put('/update_section_to_other', async (req, res) => {
+
+  const {selectedSection} = req.body
+  const query = `UPDATE gameusers SET section = 'Other' where section = ? `;
+
+
+  try {
+      const result = await retryQuery(query, [selectedSection]);
+      res.status(200).json({ message: 'Sections updated to Other successfully' });
+  } catch (err) {
+      console.error('Database error:', err);
+      res.status(500).json({ error: 'Error updating sections' });
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

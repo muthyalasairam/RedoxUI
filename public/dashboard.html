@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,37 +12,38 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container mt-5">
         <h2>Dashboard</h2>
         <div class="d-flex align-items-center mt-3">
             <button id="manageQuestionsBtn" class="btn btn-info mr-2">Manage Redox Questions</button>
             <button id="viewQuestionsButton" class="btn btn-info mr-2">View Questions</button>
-            
+
             <!-- Dropdown for Student Scores -->
             <div class="dropdown">
-                <button class="btn btn-info mr-2 dropdown-toggle" type="button" id="sectionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-info mr-2 dropdown-toggle" type="button" id="sectionDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Student Scores
                 </button>
                 <div class="dropdown-menu" aria-labelledby="sectionDropdown">
-                    <a class="dropdown-item" href="#" onclick="filterBySection('All')">All Sections</a>
-                    <a class="dropdown-item" href="#" onclick="filterBySection('Section 1')">Section 1</a>
-                    <a class="dropdown-item" href="#" onclick="filterBySection('Section 2')">Section 2</a>
-                    <a class="dropdown-item" href="#" onclick="filterBySection('Section 3')">Section 3</a>
-                    <a class="dropdown-item" href="#" onclick="filterBySection('Section 4')">Section 4</a>
-                    <a class="dropdown-item" href="#" onclick="filterBySection('Other')">Other</a>
+                    <a class="dropdown-item" href="#">All</a>
+                    <a class="dropdown-item" href="#">Section 1</a>
+                    <a class="dropdown-item" href="#">Section 2</a>
+                    <a class="dropdown-item" href="#">Section 3</a>
+                    <a class="dropdown-item" href="#">Section 4</a>
+                    <a class="dropdown-item" href="#">Other</a>
                 </div>
             </div>
-            <button id = "SectionCodesBtn" class = "btn btn-info mr-2">Section Codes</button>
-    
+            <button id="SectionCodesBtn" class="btn btn-info mr-2">Section Codes</button>
             <button onclick="logout()" class="btn btn-info ml-auto">Logout</button>
         </div>
     </div>
-    
-    
+
+
     <div class="container mt-5">
         <h2>Game Statistics</h2>
-    
+
         <!-- Row for the charts -->
         <div class="row">
             <div class="col-md-6">
@@ -55,8 +57,10 @@
 
     <div class="container" id="No Data"></div>
 
-    <div class="container">    
-        <button id="downloadExcelBtn" class="btn btn-success mt-3 right-align" style="display: none;">Download as Excel</button>    
+    <div class="container">
+        <button id="changeSectionBtn" class="btn btn-warning mt-3 mr -2 right-align" style="display: none;">Completed</button>
+        <button id="downloadExcelBtn" class="btn btn-success mt-3 right-align" style="display: none;">Download as
+            Excel</button>
         <table id="userScoresTable" class="table table-striped mt-3" style="display: none;">
             <thead>
                 <tr>
@@ -99,139 +103,171 @@
             fetch('/questions', {
                 headers: { 'Authorization': token }
             })
-            .then(response => {
-                if (response.status === 403) {
-                    alert('Access denied');
-                } else {
-                    window.location.href = '/managequestions.html';
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                .then(response => {
+                    if (response.status === 403) {
+                        alert('Access denied');
+                    } else {
+                        window.location.href = '/managequestions.html';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
         });
 
         function logout() {
             localStorage.removeItem('token');
             window.location.href = '/login.html';
         }
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', event => {
+        document.getElementById('changeSectionBtn').style.display = 'none'
+        const selectedText = event.target.innerText.trim();
+        document.getElementById('sectionDropdown').innerHTML = `${selectedText} <span class="caret"></span>`; // Update dropdown button text
+        filterBySection(selectedText); // Trigger filtering for the selected section
+    });
+});
 
         // Fetch initial stats data and render charts
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             fetch('/game/stats')
-            .then(response => response.json())
-            .then(data => {
-                originalStatsData = data; // Save the original stats data
-                renderCharts(data); // Render charts with the original data initially
-            })
-            .catch(error => console.error('Error fetching chart data:', error));
+                .then(response => response.json())
+                .then(data => {
+                    originalStatsData = data; // Save the original stats data
+                    renderCharts(data); // Render charts with the original data initially
+                })
+                .catch(error => console.error('Error fetching chart data:', error));
         });
-
-        // Render charts with the given stats data
-    // Render charts with the given stats data
-function renderCharts(data) {
-    // Calculate maximum values and step sizes for the charts
-    let maxValue = data.total_students;
-    let maxStudentsLevel1 = Math.max(data.level1_completed, data.level2_completed, data.level3_completed, data.level4_completed);
-    let stepSize = Math.ceil(maxValue / 4);
-    let stepSizeLevel = Math.ceil(maxStudentsLevel1 / 4);
-
-    // Destroy existing chart instances if they exist to avoid duplicates
-    if (window.studentsChart && typeof window.studentsChart.destroy === 'function') {
-        window.studentsChart.destroy();
+        document.getElementById('changeSectionBtn').addEventListener('click', () => {
+            const selectedSection = document.getElementById('sectionDropdown').innerText.trim();
+    if (!selectedSection || selectedSection === 'Student Scores') {
+        alert('Please select a section before updating.');
+        return;
     }
-    if (window.levelsChart && typeof window.levelsChart.destroy === 'function') {
-        window.levelsChart.destroy();
-    }
+    const confirmChange = confirm("Are you sure you want to change all students' sections to 'Other'?");
 
-    // Total students chart
-    const ctx1 = document.getElementById('studentsChart').getContext('2d');
-    window.studentsChart = new Chart(ctx1, {
-        type: 'bar',
-        data: {
-            labels: ['Total Students'],
-            datasets: [{
-                label: 'Number of Registered Students',
-                data: [data.total_students],
-                backgroundColor: ['rgba(153, 102, 255, 0.8)'],
-                borderColor: ['rgba(153, 102, 255, 0.8)'],
-                borderWidth: 1
-            }]
+    if (!confirmChange) return;
+    var payload = {selectedSection}
+
+    fetch('/update_section_to_other', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
         },
-        options: {
-            scales: {
-                y: { 
-                    beginAtZero: true, 
-                    max: maxValue,
-                    ticks: {
-                        stepSize: stepSize
-                    }
-                }
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true
-                }
-            },
-            datasets: {
-                bar: {
-                    categoryPercentage: 0.4,
-                    barPercentage: 0.4
-                }
+        body: JSON.stringify(payload)
+    })
+        .then(response => {
+            if (response.ok) {
+                alert('Sections updated successfully!');
+                window.location.href = '/dashboard.html'
+            } else {
+                alert('Failed to update sections. Please try again.');
             }
-        }
-    });
+        })
+        .catch(error => console.error('Error updating sections:', error));
+});
 
-    // Levels completion chart
-    const ctx2 = document.getElementById('levelsChart').getContext('2d');
-    window.levelsChart = new Chart(ctx2, {
-        type: 'bar',
-        data: {
-            labels: ['Level 1', 'Level 2', 'Level 3', 'Level 4'],
-            datasets: [{
-                label: 'No of Students completed Level',
-                data: [data.level1_completed, data.level2_completed, data.level3_completed, data.level4_completed],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.8)', 
-                    'rgba(54, 162, 235, 0.8)', 
-                    'rgba(255, 206, 86, 0.8)', 
-                    'rgba(75, 192, 192, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 0.8)', 
-                    'rgba(54, 162, 235, 0.8)', 
-                    'rgba(255, 206, 86, 0.8)', 
-                    'rgba(75, 192, 192, 0.8)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: { 
-                    beginAtZero: true, 
-                    max: maxStudentsLevel1,
-                    ticks: {
-                        stepSize: stepSizeLevel
+        function renderCharts(data) {
+            let maxValue = data.total_students;
+            let maxStudentsLevel1 = Math.max(data.level1_completed, data.level2_completed, data.level3_completed, data.level4_completed);
+            let stepSize = Math.ceil(maxValue / 4);
+            let stepSizeLevel = Math.ceil(maxStudentsLevel1 / 4);
+            if (window.studentsChart && typeof window.studentsChart.destroy === 'function') {
+                window.studentsChart.destroy();
+            }
+            if (window.levelsChart && typeof window.levelsChart.destroy === 'function') {
+                window.levelsChart.destroy();
+            }
+
+            // Total students chart
+            const ctx1 = document.getElementById('studentsChart').getContext('2d');
+            window.studentsChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Total Students'],
+                    datasets: [{
+                        label: 'Number of Registered Students',
+                        data: [data.total_students],
+                        backgroundColor: ['rgba(153, 102, 255, 0.8)'],
+                        borderColor: ['rgba(153, 102, 255, 0.8)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: maxValue,
+                            ticks: {
+                                stepSize: stepSize
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    datasets: {
+                        bar: {
+                            categoryPercentage: 0.4,
+                            barPercentage: 0.4
+                        }
                     }
                 }
-            },
-            responsive: true
+            });
+
+            // Levels completion chart
+            const ctx2 = document.getElementById('levelsChart').getContext('2d');
+            window.levelsChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Level 1', 'Level 2', 'Level 3', 'Level 4'],
+                    datasets: [{
+                        label: 'No of Students completed Level',
+                        data: [data.level1_completed, data.level2_completed, data.level3_completed, data.level4_completed],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: maxStudentsLevel1,
+                            ticks: {
+                                stepSize: stepSizeLevel
+                            }
+                        }
+                    },
+                    responsive: true
+                }
+            });
         }
-    });
-}
 
         function filterBySection(section) {
             if (allUserData.length === 0) {
                 fetch('/get_all_user_info', {
                     headers: { 'Authorization': token }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    allUserData = data;
-                    applyFilterAndRender(section);
-                })
-                .catch(error => console.error('Error:', error));
+                    .then(response => response.json())
+                    .then(data => {
+                        allUserData = data;
+                        applyFilterAndRender(section);
+                    })
+                    .catch(error => console.error('Error:', error));
             } else {
                 applyFilterAndRender(section);
             }
@@ -249,7 +285,11 @@ function renderCharts(data) {
         // Filter user data based on section
         function filterUserDataBySection(data, section) {
             if (section === 'All') {
-                return data;
+                return data.filter(user => 
+            ['section 1', 'section 2', 'section 3', 'section 4'].includes(
+                user.section ? user.section.toLowerCase().trim() : ''
+            )
+        );
             } else if (section === 'Other') {
                 return data.filter(user => !['section 1', 'section 2', 'section 3', 'section 4'].includes(user.section ? user.section.toLowerCase().trim() : ''));
             } else {
@@ -301,8 +341,13 @@ function renderCharts(data) {
             // Toggle visibility of table and download button
             userScoresTable.style.display = data.length ? 'table' : 'none';
             document.getElementById('downloadExcelBtn').style.display = data.length ? 'block' : 'none';
+            var selectedSection = document.getElementById('sectionDropdown').innerText.trim()
+            console.log(selectedSection)
+            if(!(selectedSection === 'Other' || selectedSection === 'All')){
+            document.getElementById('changeSectionBtn').style.display = data.length ? 'block' : 'none';
+            }
         }
-
+        
         // Excel download functionality
         document.getElementById('downloadExcelBtn').addEventListener('click', () => {
             const wb = XLSX.utils.book_new();
@@ -312,4 +357,5 @@ function renderCharts(data) {
         });
     </script>
 </body>
+
 </html>
