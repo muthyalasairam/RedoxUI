@@ -291,7 +291,7 @@
                 user.section ? user.section.toLowerCase().trim() : ''
             )
         );
-            } else if (section.toLowerCase === 'other') {
+            } else if (section.toLowerCase() === 'other') {
                 return data.filter(user => !['section 1', 'section 2', 'section 3', 'section 4'].includes(user.section ? user.section.toLowerCase().trim() : ''));
             } else {
                 return data.filter(user => user.section && user.section.toLowerCase().trim() === section.toLowerCase().trim());
@@ -344,7 +344,7 @@
             document.getElementById('downloadExcelBtn').style.display = data.length ? 'block' : 'none';
             var selectedSection = document.getElementById('sectionDropdown').innerText.trim()
             console.log(selectedSection)
-            if(!(selectedSection.toLowerCase === 'other' || selectedSection === 'All')){
+            if(!(selectedSection.toLowerCase() === 'other' || selectedSection === 'All')){
             document.getElementById('changeSectionBtn').style.display = data.length ? 'block' : 'none';
             }
         }
