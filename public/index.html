@@ -3,14 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to the Chemistry Quiz App</title>
+    <title>Redox Chemistry Quiz App</title>
+    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <h1 class="mt-5">Welcome to the Chemistry Quiz App</h1>
-        <p class="lead">Please <a href="login.html">login</a> or <a href="register.html">register</a> to continue.</p>
-        <p>If you don't have an account, please <a href="register.html">register</a> or contact the administrator for assistance.</p>
+<body class="bg-info text-light d-flex align-items-center" style="min-height: 100vh;">
+    <div class="container text-center bg-light text-dark rounded shadow p-5">
+        <!-- Logo and Title Section -->
+        <div class="d-flex flex-column align-items-center">
+            <h6 class="display-4 font-weight-bold text-primary">Welcome to the Chemistry Quiz App</h6>
+        </div>
+        <p class="lead mt-3">
+            <span style="font-weight: bold; font-size: 2.0rem; color: #0c7c6b;">
+                Redox - Protect The World
+            </span>
+        </p>
+        
+        <div class="mt-4">
+            <a href="login.html" class="btn btn-primary btn-lg mx-2">Login</a>
+            <a href="register.html" class="btn btn-success btn-lg mx-2">Register</a>
+        </div>
+        <p class="mt-4">Need help? <a href="#" class="text-info font-weight-bold">Contact the Administrator</a></p>
     </div>
+
+    <!-- Bootstrap JS (Optional for dynamic components) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
