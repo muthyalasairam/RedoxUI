@@ -7,61 +7,129 @@
     <title>Dashboard</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .right-align {
-            float: right;
+        body {
+            background-color: #cce7ff;
+        }
+
+        /* Top Bar Styling */
+        .top-bar {
+            background-color: #0ad4d4;
+            padding: 15px 20px;
+            border: 1px solid #cce7ff;
+            box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .top-bar .btn {
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 1.1rem;
+            font-style: oblique;
+            min-width: 100px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Button Colors */
+        .top-bar .btn-info {
+            background-color: #8b966e;
+            border: 1px solid #8b966e;
+            color: #fff;
+        }
+
+        .top-bar .btn-info:hover {
+            background-color: #93a85e;
+            border-color: #93a85e;
+        }
+
+        /* Logout Button */
+        .logout-btn {
+            color: #fff;
+            background-color: #ff6b6b; /* Bright coral red */
+            border-color: #e65b5b;
+            margin-left: auto;
+        }
+
+        .logout-btn:hover {
+            background-color: #f10909;
+            border-color: #f10909;
+        }
+
+        .dropdown-menu {
+            border-radius: 8px;
+        }
+
+        /* Game Statistics Section Styling */
+        .game-statistics {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .game-statistics h2 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Align Fixes */
+        .top-bar .btn-group,
+        .top-bar .dropdown {
+            margin: 0;
         }
     </style>
 </head>
 
 <body>
-    <div class="container mt-5">
-        <h2>Dashboard</h2>
-        <div class="d-flex align-items-center mt-3">
-            <button id="manageQuestionsBtn" class="btn btn-info mr-2">Manage Redox Questions</button>
-            <button id="viewQuestionsButton" class="btn btn-info mr-2">View Questions</button>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button id="manageQuestionsBtn" class="btn btn-info">Manage Redox Questions</button>
+        <button id="viewQuestionsButton" class="btn btn-info">View Questions</button>
+        <div class="dropdown">
+            <button class="btn btn-info dropdown-toggle" type="button" id="sectionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Student Scores
+            </button>
+            <div class="dropdown-menu" aria-labelledby="sectionDropdown">
+                <a class="dropdown-item" href="#">All</a>
+                <a class="dropdown-item" href="#">Section 1</a>
+                <a class="dropdown-item" href="#">Section 2</a>
+                <a class="dropdown-item" href="#">Section 3</a>
+                <a class="dropdown-item" href="#">Section 4</a>
+                <a class="dropdown-item" href="#">Other</a>
+            </div>
+        </div>
+        <button id="SectionCodesBtn" class="btn btn-info">Section Codes</button>
+        <button onclick="logout()" class="btn logout-btn">Logout</button>
+    </div>
 
-            <!-- Dropdown for Student Scores -->
-            <div class="dropdown">
-                <button class="btn btn-info mr-2 dropdown-toggle" type="button" id="sectionDropdown"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Student Scores
-                </button>
-                <div class="dropdown-menu" aria-labelledby="sectionDropdown">
-                    <a class="dropdown-item" href="#">All</a>
-                    <a class="dropdown-item" href="#">Section 1</a>
-                    <a class="dropdown-item" href="#">Section 2</a>
-                    <a class="dropdown-item" href="#">Section 3</a>
-                    <a class="dropdown-item" href="#">Section 4</a>
-                    <a class="dropdown-item" href="#">Other</a>
+    <!-- Game Statistics Section -->
+    <div class="container mt-4">
+        <div class="game-statistics">
+            <h2>Game Statistics</h2>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <canvas id="studentsChart" width="400" height="200"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="levelsChart" width="400" height="200"></canvas>
                 </div>
             </div>
-            <button id="SectionCodesBtn" class="btn btn-info mr-2">Section Codes</button>
-            <button onclick="logout()" class="btn btn-info ml-auto">Logout</button>
         </div>
     </div>
 
-
-    <div class="container mt-5">
-        <h2>Game Statistics</h2>
-
-        <!-- Row for the charts -->
-        <div class="row">
-            <div class="col-md-6">
-                <canvas id="studentsChart" width="400" height="200"></canvas>
-            </div>
-            <div class="col-md-6">
-                <canvas id="levelsChart" width="400" height="200"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="container" id="No Data"></div>
-
-    <div class="container">
-        <div class="container mt-3 d-flex justify-content-end">
+    <!-- User Scores Table -->
+    <div class="container mt-4">
+        <div id="No Data"></div>
+        <div class="d-flex justify-content-end">
             <button id="downloadExcelBtn" class="btn btn-success mr-3" style="display: none;">Download as Excel</button>
             <button id="changeSectionBtn" class="btn btn-warning" style="display: none;">Completed</button>
-        </div>        
+        </div>
         <table id="userScoresTable" class="table table-striped mt-3" style="display: none;">
             <thead>
                 <tr>
@@ -74,8 +142,7 @@
                     <th>Level 4 Score</th>
                 </tr>
             </thead>
-            <tbody id="userScoresBody">
-            </tbody>
+            <tbody id="userScoresBody"></tbody>
         </table>
     </div>
 
