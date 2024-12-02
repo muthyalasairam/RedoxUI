@@ -195,7 +195,11 @@
                     const correctOption = document.getElementById('correct_option').value;
 
                     const options = Array.from(document.querySelectorAll('#additional-options .input-group .form-control')).map(opt => opt.value);
-
+                    // Validation for Level 4 and 5
+                if (!question_text || !equation || !correctOption || options.some(opt => !opt)) {
+                     alert('Please fill in all fields before adding the question.');
+                    return;
+                }
                     questionData = { question_text, equation, correctOption, options };
                 } else {
                     let equationHtml = quill1.root.innerHTML;
@@ -208,7 +212,11 @@
                         document.getElementById('option3').value,
                         document.getElementById('option4').value
                     ];
-
+                // Validation for Levels 1, 2, and 3
+                    if (!question_text || !option1 || !option2 || !option3 || !option4 || !level) {
+                      alert('Please fill in all fields before adding the question.');
+                    return;
+                    }
                     questionData = { question_text, options };
                 }
 
