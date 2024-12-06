@@ -1,101 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Redox Questions</title>
+    <title>Add Questions</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .right-align {
-            float: right;
+        .label-container {
+            background: linear-gradient(135deg, #e0a207 0%, #ddec03 100%);
+            padding: 5px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            margin: 10px auto;
+            text-align: left;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+
+        .label-container h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #ffffff;
+        }
+
+        .label-container .label-paragraph {
+            margin: 0;
+            font-size: 1rem;
+            color: #ffffff;
+            font-weight: bold;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .label-container .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .label-container .btn {
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            background-color: #ffffff;
+            color: #a06a1e;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .label-container .btn:hover {
+            background-color: #11c15b;
+            color: #ffffff;
+        }
+
+        .center-content {
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        .form-controll {
+            width: 12%;
+            margin: 20px auto;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            font-size: 1.02rem;
+            background: linear-gradient(135deg, #208656 0%, #abdf30 100%);
+            border: 1.5px solid #ff7f50;
+            color: #edf0f3;
+        }
+
+        .form-controll option {
+            padding: 10px;
+            background: #ffffff;
+            color: #2c3e50;
+        }
+
+        #questionForm,
+        #level4-format {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            margin: 20px auto;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: none;
+        }
+
+        .btn-info {
+            display: block;
+            margin: 20px auto;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-info:hover {
+            background-color: #1c56ca;
+        }
+
+        #toolbar1 button,
+        #toolbar button {
+            margin-right: 5px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #toolbar1 button:hover,
+        #toolbar button:hover {
+            background-color: #0056b3;
+        }
+
+        #equationEditor1 {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-height: 50px;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        #questionsList {
+            margin-top: 20px;
+            text-align: center;
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h2 class="mt-5">Manage Questions</h2>
-        <button id="dashboardButton" class="btn btn-info mb-3 right-align">Go to Dashboard</button>
-        <button id="viewQuestionsButton" class="btn btn-info mb-3 right-align mr-2">View Questions</button>
-        
-        <!-- Form for Questions -->
-        <form id="questionForm" novalidate>
+    <!-- Label Container -->
+    <div class="label-container">
+        <h1>Add Questions</h1>
+        <p class="text-bold text-white label-paragraph">Select a level to Add Questions.</p>
+        <div class="button-group">
+            <button id="viewQuestionsButton" class="btn btn-info">View Questions</button>
+            <button id="dashboardButton" class="btn btn-info">View Dashboard</button>
+        </div>
+    </div>
+
+    <!-- Select Level Section -->
+    <div class="center-content">
+        <div class="form-group">
+            <label for="level" class="sr-only">Choose a Level:</label>
+            <select class="form-controll" id="level" onchange="toggleLevel4Format()">
+                <option value="none" selected disabled>Select Level</option>
+                <option value="1">Level 1 & 2</option>
+                <option value="3">Level 3</option>
+                <option value="4">Level 4-I</option>
+                <option value="5">Level 4-II</option>
+            </select>
+        </div>
+        <medium class="text-muted" style="display: block; margin-top: 5px;">
+            When adding questions, there is no need to add the question number. The question numbers will be
+            auto-assigned after adding the question.
+        </medium>
+    </div>
+
+    <!-- Default format for Levels 1, 2, and 3 -->
+    <div id="default-format">
+        <form id="questionForm" style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;" novalidate>
             <div class="form-group">
-                <label for="level">Select Level</label>
-                <select class="form-control" id="level" onchange="toggleLevel4Format()">
-                    <option value="1">Level 1 & 2</option>
-                    <option value="3">Level 3</option>
-                    <option value="4">Level 4-I</option>
-                    <option value="5">Level 4-II</option>
-                </select>
+                <div id="toolbar1">
+                    <button type="button" class="ql-script" value="sub">Subscript</button>
+                    <button type="button" class="ql-script" value="super">Superscript</button>
+                    <button type="button" id="arrowButton1">→</button>
+                </div>
+                <label for="question_text">Question:</label>
+                <div id="equationEditor1" class="form-control" style="min-height: 50px;"></div>
+                <input type="hidden" class="form-control" id="question_text" name="question_text" required>
             </div>
-            
-            <!-- Default format for Levels 1, 2, and 3 -->
-            <div id="default-format">
-                <div class="form-group">
-                    <div id="toolbar1">
-                        <button type="button" class="ql-script" value="sub">Subscript</button>
-                        <button type="button" class="ql-script" value="super">Superscript</button>
-                        <button type="button" id="arrowButton1">→</button>
-                    </div>
-                    <label for="question_text">Question:</label>
-                    <div id="equationEditor1" class="form-control" style="min-height: 50px;"></div>
-                    <input type="hidden" class="form-control" id="question_text" name="question_text" required>
-                </div>
-                <div class="form-group">
-                    <label for="option1">Option 1 (Correct Answer):</label>
-                    <input type="text" class="form-control" id="option1" name="option1" placeholder="Correct Answer" required>
-                </div>
-                <div class="form-group">
-                    <label for="option2">Option 2 (Incorrect Answer):</label>
-                    <input type="text" class="form-control" id="option2" name="option2" placeholder="Incorrect Answer" required>
-                </div>
-                <div class="form-group">
-                    <label for="option3">Option 3 (Incorrect Answer):</label>
-                    <input type="text" class="form-control" id="option3" name="option3" placeholder="Incorrect Answer" required>
-                </div>
-                <div class="form-group">
-                    <label for="option4">Option 4 (Incorrect Answer):</label>
-                    <input type="text" class="form-control" id="option4" name="option4" placeholder="Incorrect Answer" required>
+            <div class="form-group">
+                <label for="option1">Option 1 (Correct Answer):</label>
+                <input type="text" class="form-control" id="option1" name="option1" placeholder="Correct Answer"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="option2">Option 2 (Incorrect Answer):</label>
+                <input type="text" class="form-control" id="option2" name="option2" placeholder="Incorrect Answer"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="option3">Option 3 (Incorrect Answer):</label>
+                <input type="text" class="form-control" id="option3" name="option3" placeholder="Incorrect Answer"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="option4">Option 4 (Incorrect Answer):</label>
+                <input type="text" class="form-control" id="option4" name="option4" placeholder="Incorrect Answer"
+                    required>
+            </div>
+    </div>
+
+    <!-- Custom format for Level 4-I and Level 4-II -->
+    <div id="level4-format" style="display: none;">
+        <div class="form-group">
+            <label for="question_text_4">Level 4 Question:</label>
+            <textarea class="form-control" id="question_text_4" name="question_text_4" required
+                style="min-height: 100px; resize: vertical;"></textarea>
+            </textarea>
+
+        </div>
+        <div class="form-group">
+            <div id="toolbar">
+                <button type="button" class="ql-script" value="sub">Subscript</button>
+                <button type="button" class="ql-script" value="super">Superscript</button>
+                <button type="button" id="arrowButton">→</button>
+            </div>
+            <label for="equation">Equation (if applicable):</label>
+            <div id="equationEditor" class="form-control" style="min-height: 50px;"></div>
+            <input type="hidden" id="equationInput" name="equation">
+        </div>
+        <div class="form-group">
+            <label for="correct_option">Correct Answer:</label>
+            <input type="text" class="form-control" id="correct_option" name="correct_option"
+                placeholder="Correct Answer" required>
+        </div>
+        <div id="additional-options" class="form-group">
+            <label>Other Options:</label>
+            <div class="input-group mb-2">
+                <input type="text" class="form-control" placeholder="Incorrect Answer" required>
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-danger" onclick="removeOption(this)">Remove</button>
                 </div>
             </div>
-            
-            <!-- Custom format for Level 4-I and Level 4-II -->
-            <div id="level4-format" style="display: none;">
-                <div class="form-group">
-                    <label for="question_text_4">Level 4 Question:</label>
-                    <input type="text" class="form-control" id="question_text_4" name="question_text_4" required>
-                </div>
-                <div class="form-group">
-                    <div id="toolbar">
-                        <button type="button" class="ql-script" value="sub">Subscript</button>
-                        <button type="button" class="ql-script" value="super">Superscript</button>
-                        <button type="button" id="arrowButton">→</button>
-                    </div>
-                    <label for="equation">Equation (if applicable):</label>
-                    <div id="equationEditor" class="form-control" style="min-height: 50px;"></div>
-                    <input type="hidden" id="equationInput" name="equation">
-                </div>
-                <div class="form-group">
-                    <label for="correct_option">Correct Answer:</label>
-                    <input type="text" class="form-control" id="correct_option" name="correct_option" placeholder="Correct Answer" required>
-                </div>
-                <div id="additional-options" class="form-group">
-                    <label>Other Options:</label>
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" placeholder="Incorrect Answer" required>
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-danger" onclick="removeOption(this)">Remove</button>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-secondary" onclick="addOption()">Add Option</button>
-            </div>
-            
-            <!-- Submit button -->
-            <button type="submit" class="btn btn-info mt-3">Add Question</button>
-        </form>
-        
-        <div id="questionsList" class="mt-5"></div>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="addOption()">Add Option</button>
+    </div>
+
+    <!-- Submit button -->
+    <button type="submit" class="btn btn-info mt-3">Add Question</button>
+    </form>
+
+    <div id="questionsList" class="mt-5"></div>
     </div>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
@@ -126,7 +283,7 @@
                     quill.setSelection(range.index + arrowSymbol.length);
                 }
             });
-            
+
             document.getElementById('arrowButton1').addEventListener('click', () => {
                 const arrowSymbol = '→';
                 const range = quill.getSelection();
@@ -150,113 +307,119 @@
             });
 
             // Function to convert <sub> and <sup> HTML tags to Unicode characters
-                function convertHtmlToUnicode(html) {
-    // Subscript conversion
-    html = html.replace(/<sub>(.*?)<\/sub>/g, (_, text) => {
-        const subMap = {
-            '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
-            '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
-            '+': '₊', '-': '₋'
-        };
-        return text.split('').map(char => subMap[char] || char).join('');
-    });
+            function convertHtmlToUnicode(html) {
+                // Subscript conversion
+                html = html.replace(/<sub>(.*?)<\/sub>/g, (_, text) => {
+                    const subMap = {
+                        '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+                        '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
+                        '+': '₊', '-': '₋'
+                    };
+                    return text.split('').map(char => subMap[char] || char).join('');
+                });
 
-    // Superscript conversion
-    html = html.replace(/<sup>(.*?)<\/sup>/g, (_, text) => {
-        const supMap = {
-            '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
-            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
-            '+': '⁺', '-': '⁻'
-        };
-        return text.split('').map(char => supMap[char] || char).join('');
-    });
+                // Superscript conversion
+                html = html.replace(/<sup>(.*?)<\/sup>/g, (_, text) => {
+                    const supMap = {
+                        '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+                        '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+                        '+': '⁺', '-': '⁻'
+                    };
+                    return text.split('').map(char => supMap[char] || char).join('');
+                });
 
-    // Remove any remaining HTML tags
-    return html.replace(/<[^>]*>?/gm, '');
-}
+                // Remove any remaining HTML tags
+                return html.replace(/<[^>]*>?/gm, '');
+            }
 
-            document.getElementById('questionForm').addEventListener('submit', function(event) {
+            document.getElementById('questionForm').addEventListener('submit', function (event) {
                 event.preventDefault();
 
-                // Get full HTML from Quill
-
-
                 const level = document.getElementById('level').value;
+                if (!level) {
+                    alert('Please select a level before adding the question.');
+                    return;
+                }
+
                 let questionData;
 
                 if (level === "4" || level === "5") {
+                    // Get Quill content and validate fields
                     let equationHtml = quill.root.innerHTML;
                     const equationUnicode = convertHtmlToUnicode(equationHtml);
                     document.getElementById('equationInput').value = equationUnicode;
 
-        
-                    const question_text = document.getElementById('question_text_4').value;
-                    const equation = document.getElementById('equationInput').value;  // Store converted Unicode text
-                    const correctOption = document.getElementById('correct_option').value;
+                    const question_text = document.getElementById('question_text_4').value.trim();
+                    const equation = document.getElementById('equationInput').value.trim(); // Store converted Unicode text
+                    const correctOption = document.getElementById('correct_option').value.trim();
+                    const options = Array.from(document.querySelectorAll('#additional-options .input-group .form-control'))
+                        .map(opt => opt.value.trim());
 
-                    const options = Array.from(document.querySelectorAll('#additional-options .input-group .form-control')).map(opt => opt.value);
                     // Validation for Level 4 and 5
-                if (!question_text || !equation || !correctOption || options.some(opt => !opt)) {
-                     alert('Please fill in all fields before adding the question.');
-                    return;
-                }
+                    if (!question_text || !equation || !correctOption || options.some(opt => !opt)) {
+                        alert('Please fill in all fields before adding the question.');
+                        return;
+                    }
+
                     questionData = { question_text, equation, correctOption, options };
                 } else {
+                    // Get Quill content and validate fields for other levels
                     let equationHtml = quill1.root.innerHTML;
                     const equationUnicode = convertHtmlToUnicode(equationHtml);
                     document.getElementById('question_text').value = equationUnicode;
-                    const question_text = document.getElementById('question_text').value;
+
+                    const question_text = document.getElementById('question_text').value.trim();
                     const options = [
-                        document.getElementById('option1').value,
-                        document.getElementById('option2').value,
-                        document.getElementById('option3').value,
-                        document.getElementById('option4').value
+                        document.getElementById('option1').value.trim(),
+                        document.getElementById('option2').value.trim(),
+                        document.getElementById('option3').value.trim(),
+                        document.getElementById('option4').value.trim()
                     ];
-                // Validation for Levels 1, 2, and 3
-                    if (!question_text || !option1 || !option2 || !option3 || !option4 || !level) {
-                      alert('Please fill in all fields before adding the question.');
-                    return;
+
+                    // Validation for Levels 1, 2, and 3
+                    if (!question_text || options.some(opt => !opt)) {
+                        alert('Please fill in all fields before adding the question.');
+                        return;
                     }
+
                     questionData = { question_text, options };
                 }
 
                 console.log('Data to send:', questionData);
-
                 const endpoint = `/level${level}questions`;
-
                 fetch(endpoint, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': token
                     },
                     body: JSON.stringify(questionData)
                 })
-                .then(response => {
-    if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-    }
-    return response.json(); 
-})
-.then(data => {
-    alert('Question added successfully');
-    document.getElementById('questionForm').reset();
-    toggleLevel4Format();
-})
-.catch(error => {
-    console.error('Error:', error);
-    alert('There was an error adding the question. Please try again.');
-});
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server error: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        alert('Question added successfully');
+                        document.getElementById('questionForm').reset();
+                        toggleLevel4Format();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Please Select a level to add the questions');
+                    });
             });
         });
 
         function toggleLevel4Format() {
             const level = document.getElementById('level').value;
             const isLevel4 = (level === "4" || level === "5");
-    
+
             document.getElementById('default-format').style.display = isLevel4 ? 'none' : 'block';
             document.getElementById('level4-format').style.display = isLevel4 ? 'block' : 'none';
-            
+
             document.querySelectorAll('#default-format input').forEach(input => {
                 input.required = !isLevel4;
             });
@@ -268,27 +431,23 @@
         function addOption() {
             const optionContainer = document.createElement('div');
             optionContainer.className = 'input-group mb-2';
-
             const input = document.createElement('input');
             input.type = 'text';
             input.className = 'form-control';
             input.placeholder = 'Incorrect Answer';
-
             const buttonGroup = document.createElement('div');
             buttonGroup.className = 'input-group-append';
-
             const removeButton = document.createElement('button');
             removeButton.className = 'btn btn-danger';
             removeButton.type = 'button';
             removeButton.textContent = 'Remove';
             removeButton.onclick = () => optionContainer.remove();
-
             buttonGroup.appendChild(removeButton);
             optionContainer.appendChild(input);
             optionContainer.appendChild(buttonGroup);
-
             document.getElementById('additional-options').appendChild(optionContainer);
         }
     </script>
 </body>
+
 </html>

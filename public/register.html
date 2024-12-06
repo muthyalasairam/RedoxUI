@@ -3,46 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Chemistry Quiz App</title>
+    <title>Professor Registration - Chemistry Quiz App</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Ensures no page scrolling */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        /* Full screen container with limited width */
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .form-container {
+            max-width: 600px; /* Limiting the width */
+            width: 100%;
+            padding: 20px;
+            margin: 0 auto;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-title {
+            background: linear-gradient(135deg, #13dfd1 0%, #96e634 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
-<body class="bg-info text-light d-flex align-items-center" style="min-height: 100vh;">
-    <div class="container bg-light text-dark rounded shadow p-5" style="max-width: 500px;">
+<body class="bg-info text-light">
+    <div class="container bg-light text-dark rounded shadow p-4 form-container">
         <!-- Page Title -->
-        <h2 class="text-center text-primary font-weight-bold">Register</h2>       
-        <!-- Registration Form -->
-        <form id="registerForm" action="submit_registration.html" method="POST">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Choose a username" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Create a password" required>
-            </div>
-            <div class="form-group">
-                <label for="confirm_password">Confirm Password:</label>
-                <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Re-enter your password" required>
-            </div>
-            <div class="form-group">
-                <label for="role">Select your role:</label>
-                <select class="form-control" id="role" name="role" required>
-                    <option value="">--Select Role--</option>
-                    <option value="student">Student</option>
-                    <option value="teacher">Teacher</option>
-                    <option value="admin">Administrator</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">Register</button>
-        </form>
+        <h2 class="form-title">Professor Registration</h2>       
 
-        <!-- Error Message -->
-        <div id="error" class="mt-3 text-danger text-center"></div>
+        <!-- Registration Form -->
+        <form id="registerForm" action="submit_registration.php" method="POST">
+            <div class="form-group">
+                <label for="first_name">First Name:</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter your first name" required>
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name:</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter your last name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address:</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email address" required>
+            </div>
+            <div class="form-group">
+                <label for="professor_sid">Professor SID:</label>
+                <input type="text" class="form-control" id="professor_sid" name="professor_sid" placeholder="Enter your Professor SID" required>
+            </div>
+            <div class="form-group">
+                <label for="section">Section:</label>
+                <input type="text" class="form-control" id="section" name="section" placeholder="Enter your section" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description/Notes to Admin:</label>
+                <textarea class="form-control" id="description" name="description" placeholder="Add any notes for the admin" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        </form>
 
         <!-- Back and Login Links -->
         <div class="mt-4 text-center">
@@ -51,22 +80,9 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS (Optional for dynamic components) -->
+    <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-    <!-- Password Validation Script -->
-    <script>
-        document.getElementById('registerForm').addEventListener('submit', function(event) {
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm_password').value;
-
-            if (password !== confirmPassword) {
-                event.preventDefault();
-                document.getElementById('error').textContent = "Passwords do not match.";
-            }
-        });
-    </script>
 </body>
 </html>
