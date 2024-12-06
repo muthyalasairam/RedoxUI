@@ -8,13 +8,13 @@ const crypto = require('crypto');
 const cors = require('cors');
 app.use(cors());
 require('dotenv').config();
+const axios = require('axios');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 let db;
-// MySQL connection
 function initializeDbConnection() {
   db = mysql.createPool({
     host: process.env.DB_HOST,
@@ -58,37 +58,99 @@ async function retryQuery(query, params, attempts = 3) {
   });
 }
 
-// Register endpoint (no authentication needed)
-app.post('/register', async (req, res) => {
-  const { username, password, role } = req.body;
-  const hashedPassword = bcrypt.hashSync(password, 8);
-  const query = 'INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)';
+app.post('/registerUser', async (req, res) => {
+  const { email, password, api_key } = req.body;
+
+  if (!api_key) {
+    return res.status(401).send({ message: 'Unauthorized' });
+  }
+  if (!email || !password) {
+    return res.status(400).send({ message: 'Email and password are required' });
+  }
 
   try {
-    await retryQuery(query, [username, hashedPassword, role]);
-    res.status(200).send('User registered successfully');
-  } catch (err) {
-    console.error('Database error:', err);
-    res.status(500).send('There was a problem registering the user');
+    // Step 1: Register the user in Firebase
+    const response = await axios.post(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${api_key}`,
+      { email, password, returnSecureToken: true }
+    );
+
+    // Step 2: Add the user to the MySQL database
+    const query = 'INSERT INTO users (username) VALUES (?)';
+    const dbResponse = await retryQuery(query, [email]);
+
+    if (dbResponse.affectedRows > 0) {
+      // Step 3: Send a success response only after the user is added to the DB
+      res.status(201).send({
+        message: 'User registered successfully',
+        idToken: response.data.idToken,
+        localId: response.data.localId,
+      });
+    } else {
+      throw new Error('Failed to insert user into database');
+    }
+  } catch (error) {
+    console.error('Error registering user:', error);
+
+    if (error.response) {
+      const firebaseError = error.response.data.error.message;
+      res.status(400).send({
+        message: 'Failed to register user',
+        error: firebaseError,
+      });
+    } else {
+      res.status(500).send({
+        message: 'An unexpected error occurred',
+        error: error.message,
+      });
+    }
   }
 });
 
-// Login endpoint (no authentication needed)
+
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const query = 'SELECT * FROM users WHERE username = ?';
+  console.log(username)
+  if (!username || !password) {
+    return res.status(400).send({ message: 'Username and password are required' });
+  }
 
   try {
+    var api_key = "AIzaSyBc71qt8bE246FHgxRR3hYc0VS0U9wb8EA"
+    // Step 1: Authenticate with Firebase
+    const firebaseResponse = await axios.post(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${api_key}`,
+      { email: username, password, returnSecureToken: true }
+    );
+
+    const query = 'SELECT * FROM users WHERE username = ?';
     const results = await retryQuery(query, [username]);
-    if (!results.length) return res.status(404).send('No user found');
-    res.status(200).send({ auth: true });
-  } catch (err) {
-    console.error('Database error:', err);
-    res.status(500).send('Error on the server');
+
+    if (!results.length) {
+      return res.status(404).send({ message: 'No user found in the database' });
+    }
+
+    res.status(200).send({
+      auth: true,
+      message: 'Login successful',
+      token: firebaseResponse.data.idToken, 
+    });
+  } catch (error) {
+    console.error('Error during login:', error);
+    if (error.response) {
+      return res.status(400).send({
+        message: 'Authentication failed',
+        error: error.response.data.error.message,
+      });
+    }
+    res.status(500).send({
+      message: 'An unexpected error occurred',
+      error: error.message,
+    });
   }
 });
 
-// GET endpoint for level1questions (no authentication required)
+
 app.get('/level1questions', async (req, res) => {
   const query = 'SELECT * FROM level1questions';
 
@@ -101,7 +163,6 @@ app.get('/level1questions', async (req, res) => {
   }
 });
 
-// POST endpoint to add level1questions (no authentication required)
 app.post('/level1questions', async (req, res) => {
   const { question_text, options } = req.body;
   const query = 'INSERT INTO level1questions (question_text, correctOption, incorrectOption1, incorrectOption2, incorrectOption3) VALUES (?, ?, ?, ?, ?)';
@@ -115,7 +176,6 @@ app.post('/level1questions', async (req, res) => {
   }
 });
 
-// PUT endpoint to update level1questions (no authentication required)
 app.put('/level1questions/:id', async (req, res) => {
   const { question_text, options } = req.body;
   const query = 'UPDATE level1questions SET question_text = ?, correctOption = ?, incorrectOption1 = ?, incorrectOption2 = ?, incorrectOption3 = ? WHERE id = ?';
@@ -129,7 +189,7 @@ app.put('/level1questions/:id', async (req, res) => {
   }
 });
 
-// DELETE endpoint to remove level1questions (no authentication required)
+
 app.delete('/level1questions/:id', async (req, res) => {
   const query = 'DELETE FROM level1questions WHERE id = ?';
 
@@ -142,7 +202,7 @@ app.delete('/level1questions/:id', async (req, res) => {
   }
 });
 
-// GET endpoint for level3questions
+
 app.get('/level3questions', async (req, res) => {
   const query = 'SELECT * FROM level3questions';
 
@@ -182,7 +242,6 @@ app.get('/level5questions', async (req, res) => {
 });
 
 
-// POST endpoint to add level3questions
 app.post('/level3questions', async (req, res) => {
   const { question_text, options } = req.body;
   const query = 'INSERT INTO level3questions (question_text, correctOption, incorrectOption1, incorrectOption2, incorrectOption3) VALUES (?, ?, ?, ?, ?)';
@@ -224,7 +283,7 @@ app.post('/level5questions', async (req, res) => {
   }
 });
 
-// PUT endpoint to update level3questions
+
 app.put('/level3questions/:id', async (req, res) => {
   const { question_text, options } = req.body;
  
@@ -268,7 +327,7 @@ app.put('/level5questions/:id', async (req, res) => {
   }
 });
 
-// DELETE endpoint to remove level3questions
+
 app.delete('/level3questions/:id', async (req, res) => {
   const query = 'DELETE FROM level3questions WHERE id = ?';
 
@@ -292,6 +351,7 @@ app.delete('/level4questions/:id', async (req, res) => {
     res.status(500).json({ error: 'There was a problem deleting the question' });
   }
 });
+
 app.delete('/level5questions/:id', async (req, res) => {
   const query = 'DELETE FROM level4questionspart2 WHERE id = ?';
 
@@ -361,7 +421,6 @@ app.post('/update_score', async (req, res) => {
   }
 });
 
-// GET all user info
 app.get('/get_all_user_info', async (req, res) => {
   const query = 'SELECT FirstName, LastName, Level1Score, Level2Score, Level3Score, Level4Score,section FROM gameusers';
   
@@ -405,7 +464,6 @@ app.put('/sections', async (req, res) => {
   }
 });
 
-// Game stats endpoint
 app.get('/game/stats', async (req, res) => {
   const stats = {};
   try {
@@ -435,8 +493,6 @@ app.put('/update_section_to_other', async (req, res) => {
 
   const {selectedSection} = req.body
   const query = `UPDATE gameusers SET section = 'other' where section = ? `;
-
-
   try {
       const result = await retryQuery(query, [selectedSection]);
       res.status(200).json({ message: 'Sections updated to other successfully' });
@@ -446,7 +502,6 @@ app.put('/update_section_to_other', async (req, res) => {
   }
 });
 
-// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
