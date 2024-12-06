@@ -286,7 +286,7 @@
 
             document.getElementById('arrowButton1').addEventListener('click', () => {
                 const arrowSymbol = '→';
-                const range = quill.getSelection();
+                const range = quill1.getSelection();
                 if (range) {
                     quill1.insertText(range.index, arrowSymbol);
                     quill1.setSelection(range.index + arrowSymbol.length);
