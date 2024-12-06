@@ -59,7 +59,7 @@ async function retryQuery(query, params, attempts = 3) {
 }
 
 app.post('/registerUser', async (req, res) => {
-  const { email, password, api_key } = req.body;
+  const { email, password, api_key, firstName, lastName } = req.body;
 
   if (!api_key) {
     return res.status(401).send({ message: 'Unauthorized' });
@@ -67,37 +67,63 @@ app.post('/registerUser', async (req, res) => {
   if (!email || !password) {
     return res.status(400).send({ message: 'Email and password are required' });
   }
+  if(!firstName || !lastName){
+    return res.status(400).send({ message: 'FirstName and LastName are required' });
+  }
 
   try {
-    // Step 1: Register the user in Firebase
     const response = await axios.post(
       `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${api_key}`,
       { email, password, returnSecureToken: true }
     );
 
-    // Step 2: Add the user to the MySQL database
     const query = 'INSERT INTO users (username) VALUES (?)';
     const dbResponse = await retryQuery(query, [email]);
 
     if (dbResponse.affectedRows > 0) {
-      // Step 3: Send a success response only after the user is added to the DB
-      res.status(201).send({
-        message: 'User registered successfully',
-        idToken: response.data.idToken,
-        localId: response.data.localId,
-      });
+      const query = `INSERT INTO gameusers (Email, Level1Score, Level2Score, Level3Score, Level4Score, FirstName, LastName,section) VALUES (?, 0, 0, 0, 0, ?, ?,?)`;
+      try {
+        await retryQuery(query, [email, firstName, lastName , "other"]);
+        res.status(201).send({
+          message: 'User registered successfully',
+          idToken: response.data.idToken,
+          localId: response.data.localId,
+        });
+      } 
+      catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Error registering ');
+      }
     } else {
       throw new Error('Failed to insert user into database');
     }
   } catch (error) {
     console.error('Error registering user:', error);
-
     if (error.response) {
       const firebaseError = error.response.data.error.message;
+      if(firebaseError != "EMAIL_EXISTS"){
       res.status(400).send({
         message: 'Failed to register user',
         error: firebaseError,
       });
+    }
+    else{
+      const query = 'INSERT INTO users (username) VALUES (?)';
+      const dbResponse = await retryQuery(query, [email]);
+  
+      if (dbResponse.affectedRows > 0) {
+        res.status(201).send({
+          message: 'User registered successfully as an admin and already a game user'
+        });
+      }
+      else{
+        res.status(500).send({
+          message: 'An unexpected error occurred',
+          error: error.message,
+        });
+      }
+    }
+
     } else {
       res.status(500).send({
         message: 'An unexpected error occurred',
@@ -105,6 +131,7 @@ app.post('/registerUser', async (req, res) => {
       });
     }
   }
+  
 });
 
 
@@ -116,7 +143,6 @@ app.post('/login', async (req, res) => {
   }
 
   try {
-    // Step 1: Authenticate with Firebase
     const firebaseResponse = await axios.post(
       `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.API_KEY_FIREBASE}`,
       { email: username, password, returnSecureToken: true }
@@ -392,7 +418,6 @@ app.get('/get_user_progress/:email', async (req, res) => {
   }
 });
 
-// POST to update score
 app.post('/update_score', async (req, res) => {
   const { email, score, level } = req.body;
   let query;
