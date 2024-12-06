@@ -116,10 +116,9 @@ app.post('/login', async (req, res) => {
   }
 
   try {
-    var api_key = "AIzaSyBc71qt8bE246FHgxRR3hYc0VS0U9wb8EA"
     // Step 1: Authenticate with Firebase
     const firebaseResponse = await axios.post(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${api_key}`,
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.API_KEY_FIREBASE}`,
       { email: username, password, returnSecureToken: true }
     );
 
