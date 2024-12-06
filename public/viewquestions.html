@@ -1,17 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Redox Questions</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        .label-container {
+            background: linear-gradient(135deg, #80a347 0%, #00f2fe 100%);
+            padding: 13px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: top 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            margin: 10px auto;
+            text-align: left;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+
+        .label-container h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #ffffff;
+        }
+
+        .label-container p {
+            margin: 0;
+            font-size: 1rem;
+            color: #000000;
+            display: inline;
+            font-weight: bold;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .label-container .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .label-container .btn {
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            background-color: #ffffff;
+            color: #007BFF;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .label-container .btn:hover {
+            background-color: #007BFF;
+            color: #ffffff;
+        }
+
+        .center-content {
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        .form-controll {
+            width: 200px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            border: 2px solid #ff7f50;
+            color: #2c3e50;
+        }
+
+        .form-controll option {
+            padding: 10px;
+            background: #ffffff;
+            color: #2c3e50;
+        }
+
+        .form-controll {
+            width: 200px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            border: 2px solid #ff7f50;
+            color: #2c3e50;
+        }
+
+        .form-controll option {
+            padding: 10px;
+            background: #ffffff;
+            color: #2c3e50;
+        }
+
+        #downloadQuestionsButton {
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 5px 12px;
+            background-color: #4CAF50;
+            border-color: #e96e09;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        #downloadQuestionsButton:hover {
+            background-color: #04e3ef;
+            transition: all 0.3s ease;
+            border-color: #0594ed;
+        }
+
+        .search-bar {
+            width: 215px;
+            margin: 0 auto;
+            display: block;
+            border: 2px solid #007BFF;
+            border-radius: 5px;
+            padding: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Remove increment/decrement arrows in Chrome, Safari, Edge */
+        .search-bar::-webkit-inner-spin-button,
+        .search-bar::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #searchMessage {
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
 </head>
+
 <body>
-    <div class="container">
-        <h2 class="mt-5">View Questions</h2>
+    <!-- Label Container -->
+    <div class="label-container">
+        <h1>View Questions</h1>
+        <p class="text-bold text-white label-paragraph">Select a level to view, edit, or delete questions.</p>
+        <div class="button-group">
+            <button id="backButton" class="btn btn-info">Add Questions</button>
+            <button id="dashboardButton" class="btn btn-info">View Dashboard</button>
+        </div>
+    </div>
+
+    <div class="center-content">
         <div class="form-group">
-            <label for="level">Select Level:</label>
-            <select class="form-control" id="level">
+            <label for="level" class="sr-only">Choose a Level:</label>
+            <select class="form-controll" id="level" onchange="toggleDownloadQuestionsButton()">
                 <option value="none" selected disabled>Select Level</option>
                 <option value="1">Level 1 & 2</option>
                 <option value="3">Level 3</option>
@@ -19,12 +165,28 @@
                 <option value="5">Level 4-II</option>
             </select>
         </div>
-        <div id="questionsList" class="mt-3"></div>
-        <button id="backButton" class="btn btn-info mb-3">Go to Manage Questions</button>
+
+        <!-- Download Questions Button -->
+        <button id="downloadQuestionsButton" class="btn" style="display: none; color: white; padding: 5px 15px;">
+            Download Questions File
+        </button>
     </div>
 
+
+    <div id="searchFieldContainer"></div>
+
+    <!-- Questions List -->
+    <div id="questionsList" class="container">
+        <p class="text-center text-muted">No questions available. Select a level to load questions.</p>
+    </div>
+
+    <!-- Go To Top Button -->
+    <button id="goToTopButton" class="btn btn-primary"
+        style="display: none; position: fixed; bottom: 20px; right: 20px;">Go to Top</button>
+
     <!-- Edit Modal for Levels 1-3 -->
-    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -71,7 +233,8 @@
     </div>
 
     <!-- Separate Edit Modal for Levels 4 and 5 with Quill Editor -->
-    <div class="modal fade" id="editModal45" tabindex="-1" role="dialog" aria-labelledby="editModalLabel45" aria-hidden="true">
+    <div class="modal fade" id="editModal45" tabindex="-1" role="dialog" aria-labelledby="editModalLabel45"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -101,7 +264,8 @@
                             <input type="text" class="form-control" id="edit_correctOption" required>
                         </div>
                         <div id="dynamicOptionsContainer45"></div>
-                        <button type="button" class="btn btn-secondary mb-3" onclick="addOptionField()">Add Option</button>
+                        <button type="button" class="btn btn-secondary mb-3" onclick="addOptionField()">Add
+                            Option</button>
                         <input type="hidden" id="edit_question_id45">
                         <input type="hidden" id="edit_question_level45">
                         <button type="submit" class="btn btn-primary">Save changes</button>
@@ -114,6 +278,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const quill = new Quill('#equationEditorEdit', {
@@ -143,7 +308,11 @@
                 window.location.href = '/managequestions.html';
             });
 
-            document.getElementById('level').addEventListener('change', function() {
+            document.getElementById('dashboardButton').addEventListener('click', () => {
+                window.location.href = '/dashboard.html';
+            });
+
+            document.getElementById('level').addEventListener('change', function () {
                 const level = this.value;
                 if (level === '4' || level === '5') {
                     loadQuestionsLevel45(level);
@@ -153,100 +322,261 @@
             });
 
             function loadQuestionsLevel123(level) {
+                if (level === "none") return;
+
                 const url = `/level${level}questions`;
                 fetch(url, { headers: { 'Authorization': token } })
-                .then(response => response.json())
-                .then(data => {
-                    const questionsList = document.getElementById('questionsList');
-                    questionsList.innerHTML = '';
-                    if (data.length === 0) {
-                        questionsList.innerHTML = '<p>No questions found for this level.</p>';
-                        return;
-                    }
-                    data.forEach(question => {
-                        questionsList.innerHTML += `
-                            <div class="card mt-3">
-                                <div class="card-body">
-                                    <h5 class="card-title">${question.question_text}</h5>
-                                    <p class="card-text">Level: ${level}</p>
-                                    <ul>
-                                        <li>${question.correctOption}</li>
-                                        <li>${question.incorrectOption1}</li>
-                                        <li>${question.incorrectOption2}</li>
-                                        <li>${question.incorrectOption3}</li>
-                                    </ul>
-                                    <button class="btn btn-warning" onclick="editQuestion123(${question.id}, '${question.question_text}', '${question.correctOption}', '${question.incorrectOption1}', '${question.incorrectOption2}', '${question.incorrectOption3}', ${level})">Edit</button>
-                                    <button class="btn btn-danger" onclick="deleteQuestion(${question.id}, ${level})">Delete</button>
-                                </div>
+                    .then(response => response.json())
+                    .then(data => {
+                        const questionsList = document.getElementById('questionsList');
+                        const searchFieldContainer = document.getElementById('searchFieldContainer');
+
+                        // Clear previous content
+                        questionsList.innerHTML = '';
+                        searchFieldContainer.innerHTML = '';
+
+                        if (data.length === 0) {
+                            questionsList.innerHTML = '<p>No questions found for this level.</p>';
+                            return;
+                        }
+
+                        // Add search input with a placeholder
+                        searchFieldContainer.innerHTML = `
+                <input type="text" id="searchQuestionInput" class="form-control mb-3 search-bar" placeholder="Search by Question Number">
+                <p id="searchMessage" class="text-danger"></p>
+            `;
+
+                        const searchQuestionInput = document.getElementById('searchQuestionInput');
+                        const searchMessage = document.getElementById('searchMessage');
+
+                        // Function to render questions
+                        const renderQuestions = (filteredQuestions) => {
+                            questionsList.innerHTML = '';
+                            searchMessage.textContent = '';
+
+                            if (filteredQuestions.length === 0) {
+                                searchMessage.textContent = 'No questions found for the entered number.';
+                            }
+
+                            filteredQuestions.forEach((question) => {
+                                const questionNumber = data.indexOf(question) + 1;
+                                questionsList.innerHTML += `
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Q${questionNumber}. ${question.question_text}</h5>
+                                <p class="card-text">Level: ${level}</p>
+                                <ul>
+                                    <li>${question.correctOption}</li>
+                                    <li>${question.incorrectOption1}</li>
+                                    <li>${question.incorrectOption2}</li>
+                                    <li>${question.incorrectOption3}</li>
+                                </ul>
+                                <button class="btn btn-warning" onclick="editQuestion123(${question.id}, '${question.question_text}', '${question.correctOption}', '${question.incorrectOption1}', '${question.incorrectOption2}', '${question.incorrectOption3}', ${level})">Edit</button>
+                                <button class="btn btn-danger" onclick="deleteQuestion(${question.id}, ${level})">Delete</button>
                             </div>
-                        `;
-                    });
-                })
-                .catch(error => console.error('Error fetching questions:', error));
+                        </div>
+                    `;
+                            });
+                        };
+
+                        // Initial render of all questions
+                        renderQuestions(data);
+
+                        // Add event listener for search by question number
+                        searchQuestionInput.addEventListener('input', () => {
+                            const query = searchQuestionInput.value.trim();
+                            if (query === '') {
+                                // If the search field is empty, render all questions
+                                renderQuestions(data);
+                            } else {
+                                const questionNumber = parseInt(query, 10);
+                                if (isNaN(questionNumber) || questionNumber < 1 || questionNumber > data.length) {
+                                    renderQuestions([]);
+                                } else {
+                                    renderQuestions([data[questionNumber - 1]]);
+                                }
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Error fetching questions:', error));
             }
-            window.deleteQuestion = function(id, level) {
+
+
+            window.deleteQuestion = function (id, level) {
                 if (!confirm("Are you sure you want to delete this question?")) return;
 
                 fetch(`/level${level}questions/${id}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': token }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Server error: ${response.status}`);
-                    }
-                    alert('Question deleted successfully');
-                    if (level === '4' || level === '5') {
-                        loadQuestionsLevel45(level);
-                    } else {
-                        loadQuestionsLevel123(level);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting question:', error);
-                    alert('Failed to delete the question. Please try again.');
-                });
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server error: ${response.status}`);
+                        }
+                        alert('Question deleted successfully');
+                        if (level === '4' || level === '5') {
+                            loadQuestionsLevel45(level);
+                        } else {
+                            loadQuestionsLevel123(level);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting question:', error);
+                        alert('Failed to delete the question. Please try again.');
+                    });
             };
 
 
             function loadQuestionsLevel45(level) {
+                if (level === "none") return;
+
                 const url = `/level${level}questions`;
                 fetch(url, { headers: { 'Authorization': token } })
-                .then(response => response.json())
-                .then(data => {
-                    const questionsList = document.getElementById('questionsList');
-                    questionsList.innerHTML = '';
+                    .then(response => response.json())
+                    .then(data => {
+                        const questionsList = document.getElementById('questionsList');
+                        const searchFieldContainer = document.getElementById('searchFieldContainer');
 
-                    if (data.length === 0) {
-                        questionsList.innerHTML = '<p>No questions found for this level.</p>';
-                        return;
-                    }
+                        // Clear previous content
+                        questionsList.innerHTML = '';
+                        searchFieldContainer.innerHTML = ''; // Clear previous search field
 
-                    data.forEach(question => {
-                        const options = Array.isArray(question.options) ? question.options : JSON.parse(question.options || "[]");
+                        if (data.length === 0) {
+                            questionsList.innerHTML = '<p>No questions found for this level.</p>';
+                            return;
+                        }
 
-                        questionsList.innerHTML += `
-                            <div class="card mt-3">
-                                <div class="card-body">
-                                    <h5 class="card-title">${question.question_text}</h5>
-                                    <p><strong>Equation:</strong> ${question.equation || ''}</p>
-                                    <ul>
-                                        <li>${question.correctOption}</li>
-                                        ${options.map(opt => `<li>${opt}</li>`).join('')}
-                                    </ul>
-                                    <button class="btn btn-warning" onclick="editQuestion45(${question.id}, '${question.question_text}', '${question.equation || ''}', ${level}, '${question.correctOption}', ${options.map(opt => `'${opt}'`).join(', ')})">Edit</button>
-                                    <button class="btn btn-danger" onclick="deleteQuestion(${question.id}, ${level})">Delete</button>
-                                </div>
+                        // Add search input with a placeholder
+                        searchFieldContainer.innerHTML = `
+                <input type="text" id="searchQuestionInput" class="form-control mb-3 search-bar" placeholder="Search by Question Number">
+                <p id="searchMessage" class="text-danger"></p>
+            `;
+
+                        const searchQuestionInput = document.getElementById('searchQuestionInput');
+                        const searchMessage = document.getElementById('searchMessage');
+
+                        // Function to render questions
+                        const renderQuestions = (filteredQuestions) => {
+                            questionsList.innerHTML = '';
+                            searchMessage.textContent = '';
+
+                            if (filteredQuestions.length === 0) {
+                                searchMessage.textContent = 'No questions found for the entered number.';
+                            }
+
+                            filteredQuestions.forEach((question) => {
+                                const questionNumber = data.indexOf(question) + 1; // Maintain original question number
+                                const options = Array.isArray(question.options)
+                                    ? question.options
+                                    : JSON.parse(question.options || "[]");
+
+                                questionsList.innerHTML += `
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Q${questionNumber}. ${question.question_text}</h5>
+                                <p><strong>Equation:</strong> ${question.equation || ''}</p>
+                                <ul>
+                                    <li>${question.correctOption}</li>
+                                    ${options.map(opt => `<li>${opt}</li>`).join('')}
+                                </ul>
+                                <button class="btn btn-warning" onclick="editQuestion45(${question.id}, '${question.question_text}', '${question.equation || ''}', ${level}, '${question.correctOption}', ${options.map(opt => `'${opt}'`).join(', ')})">Edit</button>
+                                <button class="btn btn-danger" onclick="deleteQuestion(${question.id}, ${level})">Delete</button>
                             </div>
-                        `;
-                    });
-                })
-                .catch(error => console.error('Error fetching questions:', error));
+                        </div>
+                    `;
+                            });
+                        };
+
+                        // Initial render of all questions
+                        renderQuestions(data);
+
+                        // Add event listener for search by question number
+                        searchQuestionInput.addEventListener('input', () => {
+                            const query = searchQuestionInput.value.trim();
+                            if (query === '') {
+                                // If the search field is empty, render all questions
+                                renderQuestions(data);
+                            } else {
+                                const questionNumber = parseInt(query, 10);
+                                if (isNaN(questionNumber) || questionNumber < 1 || questionNumber > data.length) {
+                                    renderQuestions([]);
+                                } else {
+                                    renderQuestions([data[questionNumber - 1]]);
+                                }
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Error fetching questions:', error));
             }
 
-            window.editQuestion123 = function(id, question_text, correctOption, incorrectOption1, incorrectOption2, incorrectOption3, level) {
+            document.getElementById('downloadQuestionsButton').addEventListener('click', () => {
+                const level = document.getElementById('level').value;
+                if (level === "none") {
+                    alert("Please select a valid level to download questions.");
+                    return;
+                }
+
+                const url = `/level${level}questions`;
+                const token = localStorage.getItem('token');
+
+                fetch(url, { headers: { 'Authorization': token } })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data || data.length === 0) {
+                            alert('No questions available to download.');
+                            return;
+                        }
+
+                        let fileContent = `Questions Report - Level ${level}\n\n`;
+
+                        data.forEach((question, index) => {
+                            const questionText = convertHtmlToUnicode(question.question_text || "");
+                            fileContent += `${index + 1}. ${questionText}\n`;
+
+                            if (question.equation) {
+                                const equationText = convertHtmlToUnicode(question.equation);
+                                fileContent += `   - Equation: ${equationText}\n`;
+                            }
+
+                            let options = [];
+
+                            if (Array.isArray(question.options) && question.options.length > 0) {
+                                options = question.options.map((opt, idx) => ({
+                                    text: opt.text || opt,
+                                    isCorrect: opt.isCorrect || false,
+                                }));
+                            } else {
+                                options = [
+                                    { text: question.correctOption, isCorrect: true },
+                                    ...Object.entries(question)
+                                        .filter(([key]) => key.startsWith('incorrectOption'))
+                                        .map(([_, text]) => ({ text, isCorrect: false }))
+                                ].filter(opt => opt.text);
+                            }
+
+                            options.forEach((option, idx) => {
+                                const label = option.isCorrect ? 'Correct' : `In-Correct ${idx + 1}`;
+                                fileContent += `   - ${label}: ${convertHtmlToUnicode(option.text)}\n`;
+                            });
+
+                            fileContent += '\n';
+                        });
+
+                        const blob = new Blob([fileContent], { type: 'text/plain' });
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = `level${level}_questions.txt`;
+                        link.click();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching questions:', error);
+                        alert('Failed to fetch questions for download.');
+                    });
+            });
+
+            window.editQuestion123 = function (id, question_text, correctOption, incorrectOption1, incorrectOption2, incorrectOption3, level) {
                 $('#edit_question_id').val(id);
-                quill2.root.innerHTML =question_text;
+                quill2.root.innerHTML = question_text;
                 $('#edit_option1').val(correctOption);
                 $('#edit_option2').val(incorrectOption1);
                 $('#edit_option3').val(incorrectOption2);
@@ -255,7 +585,7 @@
                 $('#editModal').modal('show');
             };
 
-            window.editQuestion45 = function(id, question_text, equation, level, correctOption, ...options) {
+            window.editQuestion45 = function (id, question_text, equation, level, correctOption, ...options) {
                 $('#edit_question_id45').val(id);
                 $('#edit_question_text45').val(question_text);
                 quill.root.innerHTML = equation;
@@ -267,7 +597,7 @@
                 $('#editModal45').modal('show');
             };
 
-            window.addOptionField = function(value = '', index = null) {
+            window.addOptionField = function (value = '', index = null) {
                 const optionsContainer = document.getElementById('dynamicOptionsContainer45');
                 const optionIndex = index || optionsContainer.childElementCount + 1;
                 const optionDiv = document.createElement('div');
@@ -286,7 +616,7 @@
                 optionsContainer.appendChild(optionDiv);
             };
 
-            window.removeOptionField = function(index) {
+            window.removeOptionField = function (index) {
                 const optionDiv = document.getElementById(`option-field-${index}`);
                 if (optionDiv) {
                     optionDiv.remove();
@@ -294,30 +624,29 @@
             };
 
             function convertHtmlToUnicode(html) {
-    // Subscript conversion
-    html = html.replace(/<sub>(.*?)<\/sub>/g, (_, text) => {
-        const subMap = {
-            '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
-            '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
-            '+': '₊', '-': '₋'
-        };
-        return text.split('').map(char => subMap[char] || char).join('');
-    });
+                // Subscript conversion
+                html = html.replace(/<sub>(.*?)<\/sub>/g, (_, text) => {
+                    const subMap = {
+                        '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+                        '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
+                        '+': '₊', '-': '₋'
+                    };
+                    return text.split('').map(char => subMap[char] || char).join('');
+                });
 
-    // Superscript conversion
-    html = html.replace(/<sup>(.*?)<\/sup>/g, (_, text) => {
-        const supMap = {
-            '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
-            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
-            '+': '⁺', '-': '⁻'
-        };
-        return text.split('').map(char => supMap[char] || char).join('');
-    });
+                // Superscript conversion
+                html = html.replace(/<sup>(.*?)<\/sup>/g, (_, text) => {
+                    const supMap = {
+                        '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+                        '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+                        '+': '⁺', '-': '⁻'
+                    };
+                    return text.split('').map(char => supMap[char] || char).join('');
+                });
 
-    // Remove any remaining HTML tags
-    return html.replace(/<[^>]*>?/gm, '');
-}
-
+                // Remove any remaining HTML tags
+                return html.replace(/<[^>]*>?/gm, '');
+            }
 
             document.getElementById('arrowButton').addEventListener('click', () => {
                 const arrowSymbol = '→';
@@ -335,12 +664,12 @@
                     quill2.setSelection(range.index + arrowSymbol.length);
                 }
             });
-            $('#editForm').on('submit', function(event) {
+            $('#editForm').on('submit', function (event) {
                 event.preventDefault();
                 const level = $('#edit_question_level').val();
                 const id = $('#edit_question_id').val();
                 let question_html = quill2.root.innerHTML;
-                
+
                 const question_text = convertHtmlToUnicode(question_html);
                 const options = [
                     document.getElementById('edit_option1').value,
@@ -353,24 +682,24 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': token },
                     body: JSON.stringify({ question_text, options })
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Server error: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    alert('Question updated successfully');
-                    $('#editModal').modal('hide');
-                    loadQuestionsLevel123(level);
-                })
-                .catch(error => {
-                    console.error('Error updating question:', error);
-                    alert('Failed to update the question. Please try again.');
-                });
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server error: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        alert('Question updated successfully');
+                        $('#editModal').modal('hide');
+                        loadQuestionsLevel123(level);
+                    })
+                    .catch(error => {
+                        console.error('Error updating question:', error);
+                        alert('Failed to update the question. Please try again.');
+                    });
             });
 
-            $('#editForm45').on('submit', function(event) {
+            $('#editForm45').on('submit', function (event) {
                 event.preventDefault();
                 const id = $('#edit_question_id45').val();
                 const question_text = $('#edit_question_text45').val();
@@ -386,23 +715,69 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': token },
                     body: JSON.stringify(payload)
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Server error: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    alert('Question updated successfully');
-                    $('#editModal45').modal('hide');
-                    loadQuestionsLevel45(level);
-                })
-                .catch(error => {
-                    console.error('Error updating question:', error);
-                    alert('Failed to update the question. Please try again.');
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server error: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        alert('Question updated successfully');
+                        $('#editModal45').modal('hide');
+                        loadQuestionsLevel45(level);
+                    })
+                    .catch(error => {
+                        console.error('Error updating question:', error);
+                        alert('Failed to update the question. Please try again.');
+                    });
+            });
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const goToTopButton = document.getElementById('goToTopButton');
+
+            // Show the button when scrolling down
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > window.innerHeight) {
+                    goToTopButton.style.display = 'block';
+                } else {
+                    goToTopButton.style.display = 'none';
+                }
+            });
+
+            // Scroll to the top when clicked
+            goToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
                 });
             });
         });
+
+        <!-- Download Questions toggleDownloadButton -->
+        function toggleDownloadQuestionsButton() {
+            const levelSelect = document.getElementById("level");
+            const downloadButton = document.getElementById("downloadQuestionsButton");
+            // Show the button only if a level is selected
+            if (levelSelect.value !== "none") {
+                downloadButton.style.display = "inline-block";
+            } else {
+                downloadButton.style.display = "none";
+            }
+        }
+
+        let lastScrollTop = 0;
+        const labelContainer = document.querySelector('.label-container');
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.scrollY;
+            if (currentScroll > lastScrollTop) {
+                labelContainer.style.top = '-100px';
+            } else {
+                labelContainer.style.top = '0';
+            }
+            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+        });
+
     </script>
 </body>
+
 </html>

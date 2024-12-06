@@ -1,44 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Section Codes Management</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh; /* Full viewport height */
-            margin: 0;
-            background-color: #f9f9f9; /* Light background for better visibility */
+            background: linear-gradient(135deg, #42dbd6, #42dbd6);
             font-family: Arial, sans-serif;
         }
 
         .container {
             display: flex;
             flex-direction: column;
-            gap: 20px; /* Increase gap between sections */
-            max-width: 500px; /* Make container slightly larger */
+            gap: 20px;
+            max-width: 500px;
             width: 100%;
-            padding: 30px;
-            border: 1px solid #ddd;
+            padding: 15px 30px;
             border-radius: 10px;
-            background-color: #fff; /* Add a white background */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for better visibility */
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
-        .section {
-            display: flex;
-            flex-direction: column;
-            gap: 10px; /* Increase gap between label and input */
+        .header-label {
+            display: inline-block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #9ce40a, #e42c0b);
+            padding: 12px 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         label {
             font-size: 16px;
             font-weight: bold;
-            color: #333; /* Darker text color for better readability */
+            color: #333;
         }
 
         input[type="text"] {
@@ -46,7 +57,7 @@
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle inset shadow */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
             width: 100%;
         }
 
@@ -55,11 +66,33 @@
             justify-content: space-between;
             gap: 10px;
         }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .btn-info {
+            background-color: #8bc61e;
+            color: white;
+            border: none;
+        }
+
+        .btn-info:hover {
+            background-color: #388E3C;
+            color: #fff;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h1>Manage Section Codes</h1> <!-- Updated Heading -->
+        <div class="text-center">
+            <span class="header-label">Manage Section Codes</span>
+        </div>
         <div class="section">
             <label for="section1">Section 1 Code</label>
             <input type="text" id="section1" placeholder="Enter Section 1 Code" />
@@ -79,7 +112,7 @@
         <!-- Buttons -->
         <div class="button-group">
             <button id="saveChanges" class="btn btn-info">Update Codes</button>
-            <button id="backToDashboard" class="btn btn-info">Go to Dashboard</button> <!-- Same styling as Update Codes -->
+            <button id="backToDashboard" class="btn btn-info">Go to Dashboard</button>
         </div>
     </div>
 
@@ -90,7 +123,6 @@
                 const response = await fetch('/sections');
                 const data = await response.json();
                 const sectionData = data[0];
-                console.log(data);
                 document.getElementById('section1').value = sectionData.section1;
                 document.getElementById('section2').value = sectionData.section2;
                 document.getElementById('section3').value = sectionData.section3;
@@ -134,4 +166,5 @@
         window.onload = fetchSections;
     </script>
 </body>
+
 </html>

@@ -1,32 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redox Chemistry Quiz App</title>
-    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .top-bar {
+            background: linear-gradient(135deg, #13dfd1 0%, #96e634 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+        }
+
+        .content {
+            margin-top: 10px;
+        }
+
+        .main-content h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #13b22b;
+        }
+
+        .main-content p {
+            font-size: 1.2rem;
+            font-weight: normal;
+            color: #555;
+        }
+
+        .btn-primary {
+            font-weight: bold;
+            border-radius: 30px;
+        }
+
+        .lead {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .footer-info {
+            font-size: 1rem;
+            color: #0c7c6b;
+        }
+
+        .footer-info a {
+            color: #0c7c6b;
+            font-weight: bold;
+        }
+
+        .btn-custom {
+            background-color: #13dfd1;
+            color: white;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background-color: #0c7c6b;
+            color: white;
+        }
+    </style>
 </head>
+
 <body class="bg-info text-light d-flex align-items-center" style="min-height: 100vh;">
-    <div class="container text-center bg-light text-dark rounded shadow p-5">
-        <!-- Logo and Title Section -->
-        <div class="d-flex flex-column align-items-center">
-            <h6 class="display-4 font-weight-bold text-primary">Welcome to the Chemistry Quiz App</h6>
+
+    <!-- Content below the top bar -->
+    <div class="container content text-center bg-light text-dark rounded shadow p-5">
+        <div class="top-bar">
+            Dashboard for Professor
         </div>
+
+        <!-- Logo and Title Section -->
+        <div class="d-flex flex-column align-items-center main-content">
+            <h1 class="display-4">Welcome to the Chemistry Quiz App</h1>
+        </div>
+
+        <!-- Tagline -->
         <p class="lead mt-3">
-            <span style="font-weight: bold; font-size: 2.0rem; color: #0c7c6b;">
+            <span style="font-weight: bold; font-size: 2.5rem; color: #0c7c6b;">
                 Redox - Protect The World
             </span>
         </p>
-        
-        <!-- New Heading Section -->
-        <h2 class="mt-4 font-weight-bold" style="color: #FF6347;">Dashboard for Professor</h2>
-        
+
+        <!-- Buttons for Login/Register -->
         <div class="mt-4">
             <a href="login.html" class="btn btn-primary btn-lg mx-2">Login</a>
-            <!-- <a href="register.html" class="btn btn-success btn-lg mx-2">Register</a> -->
         </div>
-        <p class="mt-4">Need help? <a href="#" class="text-info font-weight-bold">Contact the Administrator</a></p>
+
+        <!-- Footer with contact info -->
+        <div class="mt-4">
+            <p class="footer-info">
+                <span class="font-weight-bold">New user?</span> <span>Contact the administrator to register and get started with the Chemistry Quiz App.</span>
+            </p>
+            <a href="register.html" class="btn-custom">Contact Administrator</a>
+        </div>
     </div>
 
     <!-- Bootstrap JS (Optional for dynamic components) -->
@@ -34,4 +112,5 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>
