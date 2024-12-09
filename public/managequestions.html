@@ -9,11 +9,13 @@
     <style>
         .label-container {
             background: linear-gradient(135deg, #e0a207 0%, #ddec03 100%);
-            padding: 5px 20px;
+            padding: 5px 15px;
+            height: 60px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            transition: top 0.3s ease;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             width: 90%;
             margin: 10px auto;
@@ -61,7 +63,7 @@
 
         .center-content {
             text-align: center;
-            margin-top: 80px;
+            margin-top: 60px;
         }
 
         .form-controll {
@@ -447,6 +449,18 @@
             optionContainer.appendChild(buttonGroup);
             document.getElementById('additional-options').appendChild(optionContainer);
         }
+
+        let lastScrollTop = 0;
+        const labelContainer = document.querySelector('.label-container');
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.scrollY;
+            if (currentScroll > lastScrollTop) {
+                labelContainer.style.top = '-100px';
+            } else {
+                labelContainer.style.top = '0';
+            }
+            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+        });
     </script>
 </body>
 
